@@ -6,6 +6,8 @@ paths:
   data_root: data
   raw_data: data/raw
   interim_data: data/interim
+  interim_transactions_clean: data/interim/transactions_clean.parquet
+  interim_preprocessing_report: data/interim/transactions_clean.report.json
   processed_data: data/processed
   artifacts: artifacts
   artifact_models: artifacts/models
@@ -16,4 +18,3 @@ paths:
   serving_go: serving/go
   src: src
   scripts: scripts
-

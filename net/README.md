@@ -15,6 +15,8 @@ that future serving code will consume.
 3. **Prepare** data in `data/interim/` and `data/processed/`.
    Interim data is for temporary cleaning or joining steps. Processed data is
    the final, model-ready representation used by training.
+   `scripts/preprocess_raw.py` creates a deterministic cleaned parquet file and
+   a JSON report with duplicate and invalid-row counts.
 4. **Train** models from `training/`.
    This is where the paper reproduction pipeline, evaluation, and experiment
    orchestration will live.
@@ -36,6 +38,8 @@ that future serving code will consume.
   a file that is already there.
 - `scripts/checksum_raw.py` recomputes SHA-256 hashes for every raw file and
   updates the manifest.
+- `scripts/preprocess_raw.py` normalizes a raw CSV, drops impossible rows, and
+  writes `data/interim/transactions_clean.parquet` plus a preprocessing report.
 
 ## Environment
 
@@ -44,4 +48,3 @@ Use Pipenv from this directory:
 ```bash
 pipenv install
 ```
-
