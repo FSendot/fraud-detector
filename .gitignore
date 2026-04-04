@@ -22,10 +22,13 @@ net/artifacts/*
 !net/artifacts/.gitkeep
 !net/artifacts/models/
 !net/artifacts/reports/
+!net/artifacts/feature_dict/
 net/artifacts/models/*
 !net/artifacts/models/.gitkeep
 net/artifacts/reports/*
 !net/artifacts/reports/.gitkeep
+net/artifacts/feature_dict/*
+!net/artifacts/feature_dict/.gitkeep
 
 net/.venv/
 net/*.log

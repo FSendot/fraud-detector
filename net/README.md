@@ -20,6 +20,8 @@ that future serving code will consume.
 4. **Train** models from `training/`.
    This is where the paper reproduction pipeline, evaluation, and experiment
    orchestration will live.
+   `scripts/build_base_features.py` produces the first point-in-time-safe
+   per-transaction feature layer and its machine-readable feature dictionary.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -40,6 +42,8 @@ that future serving code will consume.
   updates the manifest.
 - `scripts/preprocess_raw.py` normalizes a raw CSV, drops impossible rows, and
   writes `data/interim/transactions_clean.parquet` plus a preprocessing report.
+- `scripts/build_base_features.py` reads the cleaned interim parquet and writes
+  `data/processed/base_features.parquet` plus `artifacts/feature_dict/base_features.json`.
 
 ## Environment
 
