@@ -1,0 +1,61 @@
+{
+  "branch_name": "tree_branch",
+  "feature_importances": [
+    {
+      "feature_name": "amount",
+      "importance": 0.9986835328695355
+    },
+    {
+      "feature_name": "is_flagged_fraud",
+      "importance": 0.00037974513329969937
+    },
+    {
+      "feature_name": "prior_5_amount_sum",
+      "importance": 0.00018453833162953873
+    },
+    {
+      "feature_name": "prior_10_amount_mean",
+      "importance": 0.00017834066282980423
+    },
+    {
+      "feature_name": "prior_10_amount_sum",
+      "importance": 0.0001754462442428219
+    },
+    {
+      "feature_name": "prior_5_amount_mean",
+      "importance": 0.00016980727044490132
+    },
+    {
+      "feature_name": "previous_transaction_amount",
+      "importance": 0.0001687805640132053
+    },
+    {
+      "feature_name": "prior_5_transaction_count",
+      "importance": 1.558607060511361e-05
+    },
+    {
+      "feature_name": "prior_5_unique_name_dest_count",
+      "importance": 1.556468592468488e-05
+    },
+    {
+      "feature_name": "prior_10_transaction_count",
+      "importance": 1.4826158518056307e-05
+    },
+    {
+      "feature_name": "prior_10_unique_name_dest_count",
+      "importance": 1.3832008956723869e-05
+    },
+    {
+      "feature_name": "prior_10_amount_std",
+      "importance": 0.0
+    },
+    {
+      "feature_name": "prior_5_amount_std",
+      "importance": 0.0
+    },
+    {
+      "feature_name": "seconds_since_previous_transaction",
+      "importance": 0.0
+    }
+  ]
+}

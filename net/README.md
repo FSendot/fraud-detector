@@ -37,6 +37,9 @@ that future serving code will consume.
    `scripts/train_nystrom_tabular.py` trains a direct Nyström-kernel baseline
    on the selected tabular features so the latent branch can be compared
    against a simpler non-VAE alternative.
+   `scripts/train_tree_branch.py` trains a contract-validated ExtraTrees-style
+   tabular branch and exports predictions plus feature importances for later
+   fusion experiments.
    `scripts/export_feature_contract.py` exports the canonical versioned model
    feature contract used by training and future serving integrations.
    `scripts/validate_feature_contract.py` validates a parquet or CSV dataset
@@ -85,6 +88,9 @@ that future serving code will consume.
 - `scripts/train_nystrom_tabular.py` reads the prepared tabular train/valid/test
   splits and writes a direct-tabular Nyström baseline artifact, metrics, and
   valid/test prediction parquets for branch comparison.
+- `scripts/train_tree_branch.py` reads the canonical feature contract plus the
+  prepared tabular train/valid/test splits, then writes the tree model,
+  config, metrics, feature importances, and valid/test prediction parquets.
 - `scripts/export_feature_contract.py` reads the current train/valid/test
   model-input tables plus feature metadata and writes a canonical feature
   contract to `artifacts/contracts/`.

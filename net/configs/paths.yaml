@@ -47,6 +47,11 @@ paths:
   artifact_nystrom_tabular_dir: artifacts/models/nystrom_tabular
   artifact_nystrom_tabular_model: artifacts/models/nystrom_tabular/model.joblib
   artifact_nystrom_tabular_metrics: artifacts/models/nystrom_tabular/metrics.json
+  artifact_tree_branch_dir: artifacts/models/tree_branch
+  artifact_tree_branch_model: artifacts/models/tree_branch/model.joblib
+  artifact_tree_branch_config: artifacts/models/tree_branch/config.json
+  artifact_tree_branch_metrics: artifacts/models/tree_branch/metrics.json
+  artifact_tree_branch_feature_importances: artifacts/models/tree_branch/feature_importances.json
   predictions_dir: predictions
   prediction_vae_latent_train: predictions/vae_latent_train.parquet
   prediction_vae_latent_valid: predictions/vae_latent_valid.parquet
@@ -55,6 +60,8 @@ paths:
   prediction_nystrom_test: predictions/nystrom_test_predictions.parquet
   prediction_nystrom_tabular_valid: predictions/nystrom_tabular_valid_predictions.parquet
   prediction_nystrom_tabular_test: predictions/nystrom_tabular_test_predictions.parquet
+  prediction_tree_branch_valid: predictions/tree_branch_valid.parquet
+  prediction_tree_branch_test: predictions/tree_branch_test.parquet
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json
