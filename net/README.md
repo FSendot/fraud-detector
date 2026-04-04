@@ -30,6 +30,10 @@ that future serving code will consume.
    split IDs that both the tabular and sequence branches should reuse.
    `scripts/prepare_training_tabular.py` applies train-only balancing,
    scaling, and feature selection for the tabular model branches.
+   `scripts/train_vae.py` learns a reusable latent representation from the
+   tabular branch and exports embeddings for downstream models.
+   `scripts/train_nystrom_gp.py` trains a Nyström-kernel classifier on the
+   exported latent representation and writes prediction files.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -63,6 +67,10 @@ that future serving code will consume.
 - `scripts/prepare_training_tabular.py` reads the behavioral feature table plus
   canonical split IDs and writes train/valid/test tabular model inputs, learned
   preprocessing artifacts, and `reports/training_prep_report.json`.
+- `scripts/train_vae.py` reads the prepared tabular train/valid/test splits and
+  writes VAE config, weights, metrics, and latent embedding parquets.
+- `scripts/train_nystrom_gp.py` reads the latent embedding parquets and writes
+  the Nyström classifier artifact, metrics, and valid/test prediction parquets.
 
 ## Environment
 

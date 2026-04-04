@@ -26,12 +26,23 @@ net/artifacts/*
 !net/artifacts/models/
 !net/artifacts/reports/
 !net/artifacts/feature_dict/
+!net/artifacts/preprocessing/
 net/artifacts/models/*
 !net/artifacts/models/.gitkeep
+!net/artifacts/models/vae/
+!net/artifacts/models/nystrom_gp/
+net/artifacts/models/vae/*
+!net/artifacts/models/vae/.gitkeep
+net/artifacts/models/nystrom_gp/*
+!net/artifacts/models/nystrom_gp/.gitkeep
 net/artifacts/reports/*
 !net/artifacts/reports/.gitkeep
 net/artifacts/feature_dict/*
 !net/artifacts/feature_dict/.gitkeep
+net/artifacts/preprocessing/*
+
+net/predictions/*
+!net/predictions/.gitkeep
 
 net/.venv/
 net/*.log

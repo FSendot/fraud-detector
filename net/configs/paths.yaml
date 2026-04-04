@@ -34,6 +34,19 @@ paths:
   artifact_scaler: artifacts/preprocessing/scaler.joblib
   artifact_feature_selector: artifacts/preprocessing/feature_selector.joblib
   artifact_selected_features: artifacts/preprocessing/selected_features.json
+  artifact_vae_dir: artifacts/models/vae
+  artifact_vae_config: artifacts/models/vae/config.json
+  artifact_vae_weights: artifacts/models/vae/weights.pt
+  artifact_vae_metrics: artifacts/models/vae/metrics.json
+  artifact_nystrom_gp_dir: artifacts/models/nystrom_gp
+  artifact_nystrom_gp_model: artifacts/models/nystrom_gp/model.joblib
+  artifact_nystrom_gp_metrics: artifacts/models/nystrom_gp/metrics.json
+  predictions_dir: predictions
+  prediction_vae_latent_train: predictions/vae_latent_train.parquet
+  prediction_vae_latent_valid: predictions/vae_latent_valid.parquet
+  prediction_vae_latent_test: predictions/vae_latent_test.parquet
+  prediction_nystrom_valid: predictions/nystrom_valid_predictions.parquet
+  prediction_nystrom_test: predictions/nystrom_test_predictions.parquet
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json
