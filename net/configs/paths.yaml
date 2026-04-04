@@ -1,0 +1,19 @@
+project:
+  name: fraud-detector
+  module_root: .
+
+paths:
+  data_root: data
+  raw_data: data/raw
+  interim_data: data/interim
+  processed_data: data/processed
+  artifacts: artifacts
+  artifact_models: artifacts/models
+  artifact_reports: artifacts/reports
+  training: training
+  serving: serving
+  serving_contracts: serving/contracts
+  serving_go: serving/go
+  src: src
+  scripts: scripts
+
