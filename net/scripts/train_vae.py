@@ -56,6 +56,8 @@ def _load_config(path: Path | None, *, input_dim: int) -> VAEConfig:
         beta=float(payload.get("beta", base.beta)),
         seed=int(payload.get("seed", base.seed)),
         device=str(payload.get("device", base.device)),
+        logvar_min=float(payload.get("logvar_min", base.logvar_min)),
+        logvar_max=float(payload.get("logvar_max", base.logvar_max)),
     )
 
 
@@ -83,6 +85,9 @@ def _evaluate_epoch(model: TabularVAE, loader: DataLoader, *, beta: float, devic
                 logvar,
                 beta=beta,
             )
+            if not torch.isfinite(loss):
+                msg = "encountered non-finite VAE evaluation loss"
+                raise ValueError(msg)
             total_loss += float(loss.item())
             total_reconstruction += float(reconstruction_loss.item())
             total_kl += float(kl_loss.item())
@@ -101,6 +106,9 @@ def _encode_latent(model: TabularVAE, features: pd.DataFrame, *, device: torch.d
     model.eval()
     with torch.no_grad():
         latent = model.latent_mean(tensor).cpu().numpy()
+    if not torch.isfinite(torch.tensor(latent)).all():
+        msg = "encountered non-finite latent embeddings"
+        raise ValueError(msg)
     return pd.DataFrame(latent)
 
 
@@ -166,7 +174,11 @@ def main() -> int:
                 logvar,
                 beta=config.beta,
             )
+            if not torch.isfinite(loss):
+                msg = f"encountered non-finite VAE training loss at epoch {epoch + 1}"
+                raise ValueError(msg)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
             optimizer.step()
 
             epoch_loss += float(loss.item())

@@ -22,6 +22,8 @@ class VAEConfig:
     beta: float = 0.1
     seed: int = 7
     device: str = "cpu"
+    logvar_min: float = -10.0
+    logvar_max: float = 10.0
 
     def to_payload(self) -> dict[str, Any]:
         return asdict(self)
@@ -48,6 +50,13 @@ class TabularVAE(nn.Module):
         )
         decoder_output_dim = decoder_dims[-1] if decoder_dims else config.latent_dim
         self.decoder_out = nn.Linear(decoder_output_dim, config.input_dim)
+        self._reset_parameters()
+
+    def _reset_parameters(self) -> None:
+        for module in self.modules():
+            if isinstance(module, nn.Linear):
+                nn.init.xavier_uniform_(module.weight)
+                nn.init.zeros_(module.bias)
 
     @staticmethod
     def _build_mlp(*, input_dim: int, layer_dims: tuple[int, ...]) -> nn.Sequential:
@@ -63,7 +72,9 @@ class TabularVAE(nn.Module):
 
     def encode(self, inputs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         hidden = self.encoder_backbone(inputs)
-        return self.encoder_mu(hidden), self.encoder_logvar(hidden)
+        mu = self.encoder_mu(hidden)
+        logvar = self.encoder_logvar(hidden).clamp(min=self.config.logvar_min, max=self.config.logvar_max)
+        return mu, logvar
 
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
         std = torch.exp(0.5 * logvar)
@@ -101,4 +112,3 @@ def vae_loss(
     kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
     total_loss = reconstruction_loss + beta * kl_loss
     return total_loss, reconstruction_loss, kl_loss
-

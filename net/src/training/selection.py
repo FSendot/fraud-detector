@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
+from sklearn.pipeline import Pipeline
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.feature_selection import VarianceThreshold
 
@@ -43,6 +44,19 @@ def fit_feature_selector(
             selector_name="VarianceThreshold",
         )
 
+    variance_selector = VarianceThreshold(threshold=0.0)
+    variance_selector.fit(features)
+    variance_mask = variance_selector.get_support()
+    filtered_features = features.loc[:, variance_mask]
+    if filtered_features.empty:
+        selector = variance_selector
+        return FeatureSelectionResult(
+            selector=selector,
+            selected_feature_names=[],
+            requested_top_k=top_k,
+            selector_name="VarianceThreshold",
+        )
+
     effective_k: int | str
     if top_k is None:
         effective_k = "all"
@@ -50,15 +64,21 @@ def fit_feature_selector(
         if top_k <= 0:
             msg = "top_k must be positive when provided"
             raise ValueError(msg)
-        effective_k = min(top_k, features.shape[1])
+        effective_k = min(top_k, filtered_features.shape[1])
 
-    selector = SelectKBest(score_func=f_classif, k=effective_k)
-    selector.fit(features, labels)
-    mask = selector.get_support()
-    selected_feature_names = list(features.columns[mask])
+    univariate_selector = SelectKBest(score_func=f_classif, k=effective_k)
+    univariate_selector.fit(filtered_features, labels)
+    selector = Pipeline(
+        steps=[
+            ("variance_threshold", variance_selector),
+            ("select_k_best", univariate_selector),
+        ]
+    )
+    mask = univariate_selector.get_support()
+    selected_feature_names = list(filtered_features.columns[mask])
     return FeatureSelectionResult(
         selector=selector,
         selected_feature_names=selected_feature_names,
         requested_top_k=top_k,
-        selector_name="SelectKBest(f_classif)",
+        selector_name="VarianceThreshold+SelectKBest(f_classif)",
     )

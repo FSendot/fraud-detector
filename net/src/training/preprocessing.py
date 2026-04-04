@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 
 from common.config import DEFAULT_PATHS_FILE, load_paths_config
 from common.io import ensure_directory
-from data.splits import DEFAULT_TRANSACTION_ID_COLUMNS, ensure_transaction_id_column
+from data.splits import DEFAULT_TRANSACTION_ID_COLUMNS, ensure_transaction_id_column, load_split_ids
 from training.balancing import DownsampleResult, downsample_training_frame
 from training.selection import FeatureSelectionResult, fit_feature_selector
 
@@ -54,18 +54,6 @@ def load_behavioral_features(input_path: Path) -> pd.DataFrame:
     """Load the behavioral feature parquet."""
 
     return pd.read_parquet(input_path)
-
-
-def load_split_ids(path: Path) -> pd.DataFrame:
-    """Load a split-ID parquet file."""
-
-    frame = pd.read_parquet(path)
-    if "transaction_id" not in frame.columns:
-        msg = f"split file is missing transaction_id: {path}"
-        raise ValueError(msg)
-    frame["transaction_id"] = frame["transaction_id"].astype("string")
-    return frame
-
 
 def ensure_canonical_transaction_id(frame: pd.DataFrame) -> pd.DataFrame:
     """Ensure the feature table carries the canonical transaction_id column."""

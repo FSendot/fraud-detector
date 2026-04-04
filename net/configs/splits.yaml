@@ -1,20 +1,19 @@
 split_strategy:
-  mode: proportions
-  proportions:
-    train: 0.7
-    valid: 0.15
-    test: 0.15
   cutoffs:
     train_end: null
     valid_end: null
+  mode: proportions
   order_column_preference:
-    - transaction_timestamp
-    - step
-    - transaction_order
-    - source_row_number
+  - transaction_timestamp
+  - step
+  - transaction_order
+  - source_row_number
+  proportions:
+    test: 0.15
+    train: 0.7
+    valid: 0.15
   transaction_id_preference:
-    - current_transaction_id
-    - transaction_id
-    - event_id
-    - payment_id
-
+  - current_transaction_id
+  - transaction_id
+  - event_id
+  - payment_id

@@ -53,3 +53,4 @@ net/reports/first_branch/*
 net/.venv/
 net/*.log
 net/*.sqlite3
+Pipfile.lock

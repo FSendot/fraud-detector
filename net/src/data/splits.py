@@ -48,6 +48,17 @@ def load_sequence_meta(input_path: Path) -> pd.DataFrame:
     return pd.read_parquet(input_path)
 
 
+def load_split_ids(path: Path) -> pd.DataFrame:
+    """Load a canonical split-ID parquet file."""
+
+    frame = pd.read_parquet(path)
+    if "transaction_id" not in frame.columns:
+        msg = f"split file is missing transaction_id: {path}"
+        raise ValueError(msg)
+    frame["transaction_id"] = frame["transaction_id"].astype("string")
+    return frame
+
+
 def load_split_config(path: Path = DEFAULT_SPLITS_FILE) -> dict[str, Any]:
     """Load the canonical split configuration."""
 
@@ -345,4 +356,3 @@ def make_and_write_splits(
         valid_rows=int(len(valid_ids)),
         test_rows=int(len(test_ids)),
     )
-
