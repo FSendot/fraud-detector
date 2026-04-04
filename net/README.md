@@ -22,6 +22,8 @@ that future serving code will consume.
    orchestration will live.
    `scripts/build_base_features.py` produces the first point-in-time-safe
    per-transaction feature layer and its machine-readable feature dictionary.
+   `scripts/build_behavioral_features.py` adds leakage-safe historical
+   behavioral aggregates over prior transactions for each entity.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -44,6 +46,9 @@ that future serving code will consume.
   writes `data/interim/transactions_clean.parquet` plus a preprocessing report.
 - `scripts/build_base_features.py` reads the cleaned interim parquet and writes
   `data/processed/base_features.parquet` plus `artifacts/feature_dict/base_features.json`.
+- `scripts/build_behavioral_features.py` reads the base feature parquet and
+  writes `data/processed/behavioral_features.parquet` plus
+  `artifacts/feature_dict/behavioral_features.json`.
 
 ## Environment
 

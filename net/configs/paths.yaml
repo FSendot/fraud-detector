@@ -10,10 +10,12 @@ paths:
   interim_preprocessing_report: data/interim/transactions_clean.report.json
   processed_data: data/processed
   processed_base_features: data/processed/base_features.parquet
+  processed_behavioral_features: data/processed/behavioral_features.parquet
   artifacts: artifacts
   artifact_models: artifacts/models
   artifact_reports: artifacts/reports
   artifact_feature_dict: artifacts/feature_dict/base_features.json
+  artifact_behavioral_feature_dict: artifacts/feature_dict/behavioral_features.json
   training: training
   serving: serving
   serving_contracts: serving/contracts
