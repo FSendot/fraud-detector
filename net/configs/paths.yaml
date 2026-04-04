@@ -20,14 +20,23 @@ paths:
   split_train_ids: data/splits/train_ids.parquet
   split_valid_ids: data/splits/valid_ids.parquet
   split_test_ids: data/splits/test_ids.parquet
+  model_input_dir: data/model_input
+  model_input_train_tabular: data/model_input/train_tabular.parquet
+  model_input_valid_tabular: data/model_input/valid_tabular.parquet
+  model_input_test_tabular: data/model_input/test_tabular.parquet
   artifacts: artifacts
   artifact_models: artifacts/models
   artifact_reports: artifacts/reports
   artifact_feature_dict: artifacts/feature_dict/base_features.json
   artifact_behavioral_feature_dict: artifacts/feature_dict/behavioral_features.json
   artifact_sequence_schema: artifacts/sequence_schema.json
+  artifact_preprocessing_dir: artifacts/preprocessing
+  artifact_scaler: artifacts/preprocessing/scaler.joblib
+  artifact_feature_selector: artifacts/preprocessing/feature_selector.joblib
+  artifact_selected_features: artifacts/preprocessing/selected_features.json
   reports_dir: reports
   split_report: reports/split_report.json
+  training_prep_report: reports/training_prep_report.json
   training: training
   serving: serving
   serving_contracts: serving/contracts

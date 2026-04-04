@@ -28,6 +28,8 @@ that future serving code will consume.
    fixed-length GRU sequence dataset plus current-row, target, and metadata files.
    `scripts/make_splits.py` creates the canonical chronological train/valid/test
    split IDs that both the tabular and sequence branches should reuse.
+   `scripts/prepare_training_tabular.py` applies train-only balancing,
+   scaling, and feature selection for the tabular model branches.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -58,6 +60,9 @@ that future serving code will consume.
 - `scripts/make_splits.py` reads the behavioral feature table and sequence
   metadata, then writes canonical split ID files in `data/splits/` plus
   `reports/split_report.json`.
+- `scripts/prepare_training_tabular.py` reads the behavioral feature table plus
+  canonical split IDs and writes train/valid/test tabular model inputs, learned
+  preprocessing artifacts, and `reports/training_prep_report.json`.
 
 ## Environment
 
