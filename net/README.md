@@ -24,6 +24,8 @@ that future serving code will consume.
    per-transaction feature layer and its machine-readable feature dictionary.
    `scripts/build_behavioral_features.py` adds leakage-safe historical
    behavioral aggregates over prior transactions for each entity.
+   `scripts/build_sequences.py` converts the behavioral feature table into a
+   fixed-length GRU sequence dataset plus current-row, target, and metadata files.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -49,6 +51,8 @@ that future serving code will consume.
 - `scripts/build_behavioral_features.py` reads the base feature parquet and
   writes `data/processed/behavioral_features.parquet` plus
   `artifacts/feature_dict/behavioral_features.json`.
+- `scripts/build_sequences.py` reads the behavioral feature parquet and writes
+  `data/processed/sequences/` artifacts plus `artifacts/sequence_schema.json`.
 
 ## Environment
 

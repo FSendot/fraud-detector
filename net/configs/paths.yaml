@@ -11,11 +11,17 @@ paths:
   processed_data: data/processed
   processed_base_features: data/processed/base_features.parquet
   processed_behavioral_features: data/processed/behavioral_features.parquet
+  processed_sequences_dir: data/processed/sequences
+  processed_sequences_x_seq: data/processed/sequences/X_seq.npy
+  processed_sequences_x_current: data/processed/sequences/X_current.parquet
+  processed_sequences_y: data/processed/sequences/y.parquet
+  processed_sequences_meta: data/processed/sequences/meta.parquet
   artifacts: artifacts
   artifact_models: artifacts/models
   artifact_reports: artifacts/reports
   artifact_feature_dict: artifacts/feature_dict/base_features.json
   artifact_behavioral_feature_dict: artifacts/feature_dict/behavioral_features.json
+  artifact_sequence_schema: artifacts/sequence_schema.json
   training: training
   serving: serving
   serving_contracts: serving/contracts
