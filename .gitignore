@@ -11,12 +11,15 @@ net/data/*
 !net/data/raw/
 !net/data/interim/
 !net/data/processed/
+!net/data/splits/
 net/data/raw/*
 !net/data/raw/.gitkeep
 net/data/interim/*
 !net/data/interim/.gitkeep
 net/data/processed/*
 !net/data/processed/.gitkeep
+net/data/splits/*
+!net/data/splits/.gitkeep
 
 net/artifacts/*
 !net/artifacts/.gitkeep

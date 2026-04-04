@@ -26,6 +26,8 @@ that future serving code will consume.
    behavioral aggregates over prior transactions for each entity.
    `scripts/build_sequences.py` converts the behavioral feature table into a
    fixed-length GRU sequence dataset plus current-row, target, and metadata files.
+   `scripts/make_splits.py` creates the canonical chronological train/valid/test
+   split IDs that both the tabular and sequence branches should reuse.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -53,6 +55,9 @@ that future serving code will consume.
   `artifacts/feature_dict/behavioral_features.json`.
 - `scripts/build_sequences.py` reads the behavioral feature parquet and writes
   `data/processed/sequences/` artifacts plus `artifacts/sequence_schema.json`.
+- `scripts/make_splits.py` reads the behavioral feature table and sequence
+  metadata, then writes canonical split ID files in `data/splits/` plus
+  `reports/split_report.json`.
 
 ## Environment
 
