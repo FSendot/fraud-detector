@@ -45,13 +45,14 @@ def _resolve_output_path(candidate: Path | None, fallback: Path) -> Path:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Preprocess a raw CSV into data/interim/transactions_clean.parquet.",
+        description="Preprocess one or more raw CSV files into data/interim/transactions_clean.parquet.",
     )
     parser.add_argument(
         "--input",
         type=Path,
         required=True,
-        help="Raw CSV file in data/raw/, given as a filename or project-relative path.",
+        action="append",
+        help="Raw CSV file in data/raw/, given as a filename or project-relative path. Repeat for multiple files.",
     )
     parser.add_argument(
         "--output",
@@ -70,13 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
-    input_path = _resolve_input_path(args.input.expanduser())
+    input_paths = [_resolve_input_path(candidate.expanduser()) for candidate in args.input]
     default_parquet_path, default_report_path = default_output_paths()
     output_path = _resolve_output_path(args.output, default_parquet_path)
     report_path = _resolve_output_path(args.report, default_report_path)
 
     result = preprocess_raw_transactions(
-        input_path=input_path,
+        input_path=input_paths,
         output_parquet_path=output_path,
         output_report_path=report_path,
     )

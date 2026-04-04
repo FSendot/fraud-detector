@@ -44,6 +44,12 @@ net/artifacts/preprocessing/*
 net/predictions/*
 !net/predictions/.gitkeep
 
+net/reports/*
+!net/reports/.gitkeep
+!net/reports/first_branch/
+net/reports/first_branch/*
+!net/reports/first_branch/.gitkeep
+
 net/.venv/
 net/*.log
 net/*.sqlite3

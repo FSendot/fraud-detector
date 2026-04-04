@@ -46,14 +46,16 @@ def load_raw_csv(input_path: Path) -> pd.DataFrame:
     return pd.read_csv(input_path, dtype="string", low_memory=False)
 
 
-def prepare_raw_frame(raw_frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def prepare_raw_frame(raw_frame: pd.DataFrame, *, source_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Normalize headers and trim string values without losing the original frame."""
 
     normalized = raw_frame.copy()
     normalized.columns = normalize_columns(normalized.columns)
+    normalized.insert(0, "source_file", pd.Series([source_name] * len(normalized), dtype="string"))
+    normalized.insert(1, "source_file_row_number", pd.Series(range(1, len(normalized) + 1), dtype="Int64"))
     normalized.insert(0, "source_row_number", pd.Series(range(1, len(normalized) + 1), dtype="Int64"))
     for column in normalized.columns:
-        if column == "source_row_number":
+        if column in {"source_row_number", "source_file_row_number"}:
             continue
         normalized[column] = normalized[column].astype("string").str.strip()
     return normalized, normalized.copy()
@@ -119,7 +121,8 @@ def coerce_frame_types(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, pd.
 def deduplicate_frame(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     """Drop exact duplicates using a stable first-row-wins rule."""
 
-    subset = [column for column in frame.columns if column != "source_row_number"]
+    metadata_columns = {"source_row_number", "source_file", "source_file_row_number"}
+    subset = [column for column in frame.columns if column not in metadata_columns]
     duplicate_mask = frame.duplicated(subset=subset, keep="first")
     return frame.loc[~duplicate_mask].copy(), duplicate_mask
 
@@ -180,6 +183,10 @@ def assign_transaction_order(frame: pd.DataFrame, schema: Any) -> pd.DataFrame:
     elif "step" in ordered.columns:
         sort_columns.append("step")
 
+    if "source_file" in ordered.columns:
+        sort_columns.append("source_file")
+    if "source_file_row_number" in ordered.columns:
+        sort_columns.append("source_file_row_number")
     sort_columns.append("source_row_number")
     ordered = ordered.sort_values(sort_columns, kind="mergesort", na_position="last").reset_index(drop=True)
     ordered["transaction_order"] = pd.Series(range(1, len(ordered) + 1), dtype="Int64")
@@ -209,14 +216,29 @@ def write_report(report_path: Path, report: dict[str, Any]) -> None:
 
 def preprocess_raw_transactions(
     *,
-    input_path: Path,
+    input_path: Path | list[Path] | tuple[Path, ...],
     output_parquet_path: Path,
     output_report_path: Path,
 ) -> PreprocessResult:
     """Run the full deterministic preprocessing pipeline."""
 
-    raw_input = load_raw_csv(input_path)
-    prepared_raw, prepared_for_coercion = prepare_raw_frame(raw_input)
+    input_paths = [input_path] if isinstance(input_path, Path) else list(input_path)
+    if not input_paths:
+        msg = "at least one raw input path is required"
+        raise ValueError(msg)
+
+    prepared_frames: list[pd.DataFrame] = []
+    coercion_frames: list[pd.DataFrame] = []
+    input_row_counts: dict[str, int] = {}
+    for path in sorted(input_paths, key=lambda item: item.as_posix()):
+        raw_input = load_raw_csv(path)
+        prepared_raw_frame, prepared_coercion_frame = prepare_raw_frame(raw_input, source_name=path.name)
+        prepared_frames.append(prepared_raw_frame)
+        coercion_frames.append(prepared_coercion_frame)
+        input_row_counts[str(path)] = int(len(raw_input))
+
+    prepared_raw = pd.concat(prepared_frames, axis=0, ignore_index=True)
+    prepared_for_coercion = pd.concat(coercion_frames, axis=0, ignore_index=True)
     deduplicated_raw, duplicate_mask = deduplicate_frame(prepared_raw)
     deduplicated_coercion = prepared_for_coercion.loc[~duplicate_mask].copy()
 
@@ -230,7 +252,9 @@ def preprocess_raw_transactions(
     cleaned.to_parquet(output_parquet_path, index=False)
 
     report = {
-        "input_path": str(input_path),
+        "input_path": ",".join(str(path) for path in input_paths),
+        "input_paths": [str(path) for path in input_paths],
+        "input_row_counts": input_row_counts,
         "output_parquet_path": str(output_parquet_path),
         "rows_in": int(len(prepared_raw)),
         "duplicate_rows_dropped": int(duplicate_mask.astype(bool).sum()),
@@ -242,7 +266,7 @@ def preprocess_raw_transactions(
     write_report(output_report_path, report)
 
     return PreprocessResult(
-        input_path=str(input_path),
+        input_path=",".join(str(path) for path in input_paths),
         parquet_path=str(output_parquet_path),
         report_path=str(output_report_path),
         rows_in=report["rows_in"],
@@ -264,4 +288,3 @@ def result_as_report(result: PreprocessResult) -> dict[str, Any]:
     """Convert a result dataclass into a plain mapping."""
 
     return asdict(result)
-

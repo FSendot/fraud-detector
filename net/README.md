@@ -34,6 +34,10 @@ that future serving code will consume.
    tabular branch and exports embeddings for downstream models.
    `scripts/train_nystrom_gp.py` trains a Nyström-kernel classifier on the
    exported latent representation and writes prediction files.
+   `scripts/evaluate_first_branch.py` runs branch-level usefulness checks,
+   leakage warnings, calibration summaries, and error analysis outputs.
+   `scripts/run_until_branch_validation.py` orchestrates the end-to-end path
+   from raw CSV to the first branch usefulness report.
 5. **Publish** immutable artifacts to `artifacts/`.
    Model binaries, metrics, plots, and reports should be written here.
 6. **Serve** through the future Go integration.
@@ -71,6 +75,11 @@ that future serving code will consume.
   writes VAE config, weights, metrics, and latent embedding parquets.
 - `scripts/train_nystrom_gp.py` reads the latent embedding parquets and writes
   the Nyström classifier artifact, metrics, and valid/test prediction parquets.
+- `scripts/evaluate_first_branch.py` evaluates the first branch, checks for
+  overlap or suspicious signals, saves top false positives/negatives, and
+  writes `reports/first_branch/usefulness_report.json` plus markdown.
+- `scripts/run_until_branch_validation.py` runs the full branch pipeline from
+  raw dataset registration to usefulness evaluation.
 
 ## Environment
 

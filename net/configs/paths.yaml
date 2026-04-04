@@ -50,6 +50,11 @@ paths:
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json
+  reports_first_branch_dir: reports/first_branch
+  reports_first_branch_usefulness_json: reports/first_branch/usefulness_report.json
+  reports_first_branch_usefulness_md: reports/first_branch/usefulness_report.md
+  reports_first_branch_false_positives: reports/first_branch/top_false_positives.parquet
+  reports_first_branch_false_negatives: reports/first_branch/top_false_negatives.parquet
   training: training
   serving: serving
   serving_contracts: serving/contracts
