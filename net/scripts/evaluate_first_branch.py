@@ -20,6 +20,7 @@ from data.splits import load_split_ids  # noqa: E402
 from eval.branch_usefulness import (  # noqa: E402
     build_usefulness_report,
     evaluate_prediction_frame,
+    select_best_threshold,
     write_usefulness_json,
     write_usefulness_markdown,
 )
@@ -82,26 +83,53 @@ def main() -> int:
     valid_prob = model.predict_proba(valid_features)[:, 1]
     test_prob = model.predict_proba(test_features)[:, 1]
 
-    train_predictions = classifier_prediction_frame(
+    threshold_selection = select_best_threshold(valid_labels, valid_prob)
+    selected_threshold = threshold_selection["threshold"]
+
+    baseline_train_predictions = classifier_prediction_frame(
         transaction_ids=train_txn_ids,
         labels=train_labels,
         probabilities=train_prob,
     )
-    valid_predictions = classifier_prediction_frame(
+    baseline_valid_predictions = classifier_prediction_frame(
         transaction_ids=valid_txn_ids,
         labels=valid_labels,
         probabilities=valid_prob,
     )
-    test_predictions = classifier_prediction_frame(
+    baseline_test_predictions = classifier_prediction_frame(
         transaction_ids=test_txn_ids,
         labels=test_labels,
         probabilities=test_prob,
     )
 
-    metrics_by_split = {
-        "train": evaluate_prediction_frame(train_predictions),
-        "valid": evaluate_prediction_frame(valid_predictions),
-        "test": evaluate_prediction_frame(test_predictions),
+    train_predictions = classifier_prediction_frame(
+        transaction_ids=train_txn_ids,
+        labels=train_labels,
+        probabilities=train_prob,
+        threshold=selected_threshold,
+    )
+    valid_predictions = classifier_prediction_frame(
+        transaction_ids=valid_txn_ids,
+        labels=valid_labels,
+        probabilities=valid_prob,
+        threshold=selected_threshold,
+    )
+    test_predictions = classifier_prediction_frame(
+        transaction_ids=test_txn_ids,
+        labels=test_labels,
+        probabilities=test_prob,
+        threshold=selected_threshold,
+    )
+
+    baseline_metrics_by_split = {
+        "train": evaluate_prediction_frame(baseline_train_predictions, threshold=0.5),
+        "valid": evaluate_prediction_frame(baseline_valid_predictions, threshold=0.5),
+        "test": evaluate_prediction_frame(baseline_test_predictions, threshold=0.5),
+    }
+    selected_threshold_metrics_by_split = {
+        "train": evaluate_prediction_frame(train_predictions, threshold=selected_threshold),
+        "valid": evaluate_prediction_frame(valid_predictions, threshold=selected_threshold),
+        "test": evaluate_prediction_frame(test_predictions, threshold=selected_threshold),
     }
 
     leakage_warnings = run_leakage_checks(
@@ -109,7 +137,7 @@ def main() -> int:
         valid_ids=valid_ids,
         test_ids=test_ids,
         train_features=train_tabular,
-        metrics_by_split=metrics_by_split,
+        metrics_by_split=selected_threshold_metrics_by_split,
     )
 
     false_positives, false_negatives = build_error_analysis_tables(
@@ -126,7 +154,13 @@ def main() -> int:
     )
 
     report = build_usefulness_report(
-        metrics_by_split=metrics_by_split,
+        metrics_by_split=selected_threshold_metrics_by_split,
+        baseline_metrics_by_split=baseline_metrics_by_split,
+        threshold_selection={
+            "objective": "validation_f1",
+            "selected_threshold": selected_threshold,
+            "validation_metrics_at_selected_threshold": threshold_selection,
+        },
         leakage_warnings=leakage_warnings,
         false_positives_count=len(false_positives),
         false_negatives_count=len(false_negatives),
@@ -144,6 +178,7 @@ def main() -> int:
     write_usefulness_markdown(report_md_path, report)
 
     print(
+        f"selected_threshold={selected_threshold:.6f} "
         f"valid_f1={report['summary']['valid_f1']:.6f} "
         f"test_f1={report['summary']['test_f1']:.6f} "
         f"useful={report['useful']}"
@@ -153,4 +188,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

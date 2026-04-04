@@ -34,6 +34,13 @@ that future serving code will consume.
    tabular branch and exports embeddings for downstream models.
    `scripts/train_nystrom_gp.py` trains a Nyström-kernel classifier on the
    exported latent representation and writes prediction files.
+   `scripts/train_nystrom_tabular.py` trains a direct Nyström-kernel baseline
+   on the selected tabular features so the latent branch can be compared
+   against a simpler non-VAE alternative.
+   `scripts/export_feature_contract.py` exports the canonical versioned model
+   feature contract used by training and future serving integrations.
+   `scripts/validate_feature_contract.py` validates a parquet or CSV dataset
+   against that contract before training or serving.
    `scripts/evaluate_first_branch.py` runs branch-level usefulness checks,
    leakage warnings, calibration summaries, and error analysis outputs.
    `scripts/run_until_branch_validation.py` orchestrates the end-to-end path
@@ -75,6 +82,14 @@ that future serving code will consume.
   writes VAE config, weights, metrics, and latent embedding parquets.
 - `scripts/train_nystrom_gp.py` reads the latent embedding parquets and writes
   the Nyström classifier artifact, metrics, and valid/test prediction parquets.
+- `scripts/train_nystrom_tabular.py` reads the prepared tabular train/valid/test
+  splits and writes a direct-tabular Nyström baseline artifact, metrics, and
+  valid/test prediction parquets for branch comparison.
+- `scripts/export_feature_contract.py` reads the current train/valid/test
+  model-input tables plus feature metadata and writes a canonical feature
+  contract to `artifacts/contracts/`.
+- `scripts/validate_feature_contract.py` checks that a dataset matches the
+  canonical feature names, order, dtypes, and null-handling expectations.
 - `scripts/evaluate_first_branch.py` evaluates the first branch, checks for
   overlap or suspicious signals, saves top false positives/negatives, and
   writes `reports/first_branch/usefulness_report.json` plus markdown.

@@ -30,6 +30,9 @@ paths:
   artifact_feature_dict: artifacts/feature_dict/base_features.json
   artifact_behavioral_feature_dict: artifacts/feature_dict/behavioral_features.json
   artifact_sequence_schema: artifacts/sequence_schema.json
+  artifact_contracts_dir: artifacts/contracts
+  artifact_feature_contract_json: artifacts/contracts/feature_contract_v1.json
+  artifact_feature_contract_md: artifacts/contracts/feature_contract_v1.md
   artifact_preprocessing_dir: artifacts/preprocessing
   artifact_scaler: artifacts/preprocessing/scaler.joblib
   artifact_feature_selector: artifacts/preprocessing/feature_selector.joblib
@@ -41,12 +44,17 @@ paths:
   artifact_nystrom_gp_dir: artifacts/models/nystrom_gp
   artifact_nystrom_gp_model: artifacts/models/nystrom_gp/model.joblib
   artifact_nystrom_gp_metrics: artifacts/models/nystrom_gp/metrics.json
+  artifact_nystrom_tabular_dir: artifacts/models/nystrom_tabular
+  artifact_nystrom_tabular_model: artifacts/models/nystrom_tabular/model.joblib
+  artifact_nystrom_tabular_metrics: artifacts/models/nystrom_tabular/metrics.json
   predictions_dir: predictions
   prediction_vae_latent_train: predictions/vae_latent_train.parquet
   prediction_vae_latent_valid: predictions/vae_latent_valid.parquet
   prediction_vae_latent_test: predictions/vae_latent_test.parquet
   prediction_nystrom_valid: predictions/nystrom_valid_predictions.parquet
   prediction_nystrom_test: predictions/nystrom_test_predictions.parquet
+  prediction_nystrom_tabular_valid: predictions/nystrom_tabular_valid_predictions.parquet
+  prediction_nystrom_tabular_test: predictions/nystrom_tabular_test_predictions.parquet
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json

@@ -1,0 +1,446 @@
+{
+  "artifacts": {
+    "selected_features": {
+      "feature_columns_before_selection": [
+        "amount",
+        "is_flagged_fraud",
+        "previous_transaction_amount",
+        "prior_5_transaction_count",
+        "prior_10_transaction_count",
+        "prior_5_amount_sum",
+        "prior_5_amount_mean",
+        "prior_5_amount_std",
+        "prior_10_amount_sum",
+        "prior_10_amount_mean",
+        "prior_10_amount_std",
+        "seconds_since_previous_transaction",
+        "prior_5_unique_name_dest_count",
+        "prior_10_unique_name_dest_count"
+      ],
+      "feature_selector": "SelectKBest(f_classif)",
+      "selected_feature_columns": [
+        "amount",
+        "is_flagged_fraud",
+        "previous_transaction_amount",
+        "prior_5_transaction_count",
+        "prior_10_transaction_count",
+        "prior_5_amount_sum",
+        "prior_5_amount_mean",
+        "prior_5_amount_std",
+        "prior_10_amount_sum",
+        "prior_10_amount_mean",
+        "prior_10_amount_std",
+        "seconds_since_previous_transaction",
+        "prior_5_unique_name_dest_count",
+        "prior_10_unique_name_dest_count"
+      ],
+      "selected_feature_count": 14,
+      "target_column": "is_fraud",
+      "top_k_requested": null,
+      "transaction_id_column": "transaction_id"
+    }
+  },
+  "contract_name": "fraud_model_feature_contract",
+  "dataset_requirements": {
+    "allow_extra_columns": false,
+    "expected_columns_in_order": [
+      "transaction_id",
+      "is_fraud",
+      "amount",
+      "is_flagged_fraud",
+      "previous_transaction_amount",
+      "prior_5_transaction_count",
+      "prior_10_transaction_count",
+      "prior_5_amount_sum",
+      "prior_5_amount_mean",
+      "prior_5_amount_std",
+      "prior_10_amount_sum",
+      "prior_10_amount_mean",
+      "prior_10_amount_std",
+      "seconds_since_previous_transaction",
+      "prior_5_unique_name_dest_count",
+      "prior_10_unique_name_dest_count"
+    ],
+    "row_granularity": "one_row_per_transaction",
+    "strict_column_order": true
+  },
+  "dataset_stage": "tabular_model_input",
+  "feature_order": [
+    "amount",
+    "is_flagged_fraud",
+    "previous_transaction_amount",
+    "prior_5_transaction_count",
+    "prior_10_transaction_count",
+    "prior_5_amount_sum",
+    "prior_5_amount_mean",
+    "prior_5_amount_std",
+    "prior_10_amount_sum",
+    "prior_10_amount_mean",
+    "prior_10_amount_std",
+    "seconds_since_previous_transaction",
+    "prior_5_unique_name_dest_count",
+    "prior_10_unique_name_dest_count"
+  ],
+  "features": [
+    {
+      "description": "Observed transaction amount used for historical rolling statistics.",
+      "dtype": "float64",
+      "index": 0,
+      "name": "amount",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "source"
+    },
+    {
+      "description": "Observed source-system fraud flag carried through as a passthrough field.",
+      "dtype": "float64",
+      "index": 1,
+      "name": "is_flagged_fraud",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "source"
+    },
+    {
+      "description": "Amount from the immediately preceding transaction for entity name_orig.",
+      "dtype": "float64",
+      "index": 2,
+      "name": "previous_transaction_amount",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Count of available prior transactions for entity name_orig, capped at 5.",
+      "dtype": "float64",
+      "index": 3,
+      "name": "prior_5_transaction_count",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Count of available prior transactions for entity name_orig, capped at 10.",
+      "dtype": "float64",
+      "index": 4,
+      "name": "prior_10_transaction_count",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Sum of transaction amounts over the prior 5 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 5,
+      "name": "prior_5_amount_sum",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Mean transaction amount over the prior 5 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 6,
+      "name": "prior_5_amount_mean",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Population standard deviation of transaction amounts over the prior 5 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 7,
+      "name": "prior_5_amount_std",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Sum of transaction amounts over the prior 10 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 8,
+      "name": "prior_10_amount_sum",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Mean transaction amount over the prior 10 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 9,
+      "name": "prior_10_amount_mean",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Population standard deviation of transaction amounts over the prior 10 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 10,
+      "name": "prior_10_amount_std",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Elapsed seconds since the prior transaction for entity name_orig.",
+      "dtype": "float64",
+      "index": 11,
+      "name": "seconds_since_previous_transaction",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Unique name_dest values seen over the prior 5 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 12,
+      "name": "prior_5_unique_name_dest_count",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    },
+    {
+      "description": "Unique name_dest values seen over the prior 10 transactions for entity name_orig.",
+      "dtype": "float64",
+      "index": 13,
+      "name": "prior_10_unique_name_dest_count",
+      "null_handling": {
+        "allowed_in_contract_dataset": false,
+        "upstream_training_handling": {
+          "fill_strategy_before_scaling": "fillna",
+          "fill_value": 0.0,
+          "numeric_coercion": "pd.to_numeric(errors='coerce')"
+        }
+      },
+      "nullable": false,
+      "point_in_time_safe": true,
+      "preprocessing_expectations": {
+        "numeric": true,
+        "scaled": true,
+        "selected_for_current_contract": true
+      },
+      "role": "derived"
+    }
+  ],
+  "label": {
+    "conventions": {
+      "accepted_runtime_forms": [
+        "boolean",
+        "integer_0_1"
+      ],
+      "negative_class": 0,
+      "positive_class": 1
+    },
+    "description": "Ground-truth supervised fraud label carried separately from model features.",
+    "dtype": "boolean",
+    "name": "is_fraud",
+    "nullable": false,
+    "required": true
+  },
+  "preprocessing_expectations": {
+    "dataset_stage": "model_input_tabular_after_train_only_preprocessing",
+    "feature_selection": {
+      "fit_scope": "train_only",
+      "name": "VarianceThreshold+SelectKBest(f_classif)",
+      "selected_feature_count": 14,
+      "top_k_requested": null
+    },
+    "null_fill_before_scaling": 0.0,
+    "numeric_coercion": "pd.to_numeric(errors='coerce')",
+    "scaling": {
+      "fit_scope": "train_only",
+      "name": "StandardScaler"
+    }
+  },
+  "serving_notes": {
+    "go_integration_ready": true,
+    "numeric_features_must_arrive_in_declared_order": true,
+    "transaction_id_and_label_are_not_model_features": true
+  },
+  "summary": {
+    "derived_feature_count": 12,
+    "feature_count": 14,
+    "raw_feature_count": 2
+  },
+  "transaction_id": {
+    "conventions": {
+      "format": "string",
+      "uniqueness_expectation": "expected_unique_within_dataset"
+    },
+    "description": "Canonical transaction identifier used to join splits, predictions, and serving traces.",
+    "dtype": "string",
+    "name": "transaction_id",
+    "nullable": false,
+    "required": true
+  },
+  "version": "v1"
+}

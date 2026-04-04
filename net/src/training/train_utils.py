@@ -120,6 +120,7 @@ def classifier_prediction_frame(
     transaction_ids: pd.Series,
     labels: pd.Series,
     probabilities: np.ndarray,
+    threshold: float = 0.5,
 ) -> pd.DataFrame:
     """Build a prediction dataframe with traceability columns."""
 
@@ -129,7 +130,7 @@ def classifier_prediction_frame(
             ID_COLUMN: transaction_ids.reset_index(drop=True),
             TARGET_COLUMN: labels.reset_index(drop=True),
             "score": probs,
-            "predicted_label": (probs >= 0.5).astype(int),
+            "predicted_label": (probs >= threshold).astype(int),
         }
     )
 
@@ -179,6 +180,29 @@ def default_nystrom_prediction_paths() -> tuple[Path, Path]:
     return (
         paths["prediction_nystrom_valid"],
         paths["prediction_nystrom_test"],
+    )
+
+
+def default_tabular_nystrom_paths() -> tuple[Path, Path, Path, Path, Path]:
+    """Return configured default paths for direct-tabular Nyström artifacts."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["model_input_train_tabular"],
+        paths["model_input_valid_tabular"],
+        paths["model_input_test_tabular"],
+        paths["artifact_nystrom_tabular_model"],
+        paths["artifact_nystrom_tabular_metrics"],
+    )
+
+
+def default_tabular_nystrom_prediction_paths() -> tuple[Path, Path]:
+    """Return configured default paths for direct-tabular Nyström predictions."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["prediction_nystrom_tabular_valid"],
+        paths["prediction_nystrom_tabular_test"],
     )
 
 

@@ -21,7 +21,7 @@ from sklearn.metrics import (
 from training.train_utils import binary_classification_metrics, write_json
 
 
-def evaluate_prediction_frame(predictions: pd.DataFrame) -> dict[str, Any]:
+def evaluate_prediction_frame(predictions: pd.DataFrame, *, threshold: float = 0.5) -> dict[str, Any]:
     """Compute branch metrics for one split."""
 
     y_true = predictions["is_fraud"].astype(int).to_numpy()
@@ -45,6 +45,7 @@ def evaluate_prediction_frame(predictions: pd.DataFrame) -> dict[str, Any]:
     metrics = binary_classification_metrics(pd.Series(y_true), y_score)
     metrics.update(
         {
+            "threshold": float(threshold),
             "precision": float(precision_score(y_true, y_pred, zero_division=0)),
             "recall": float(recall_score(y_true, y_pred, zero_division=0)),
             "f1": float(f1_score(y_true, y_pred, zero_division=0)),
@@ -62,9 +63,44 @@ def evaluate_prediction_frame(predictions: pd.DataFrame) -> dict[str, Any]:
     return metrics
 
 
+def select_best_threshold(
+    labels: pd.Series,
+    probabilities: np.ndarray,
+    *,
+    candidate_count: int = 200,
+) -> dict[str, float]:
+    """Choose the validation threshold that maximizes F1."""
+
+    y_true = labels.astype(int).to_numpy()
+    y_score = np.asarray(probabilities, dtype=float)
+    thresholds = np.unique(np.quantile(y_score, np.linspace(0.0, 1.0, candidate_count + 1)))
+
+    best_threshold = 0.5
+    best_f1 = -1.0
+    best_precision = 0.0
+    best_recall = 0.0
+    for threshold in thresholds:
+        y_pred = (y_score >= threshold).astype(int)
+        current_f1 = float(f1_score(y_true, y_pred, zero_division=0))
+        if current_f1 > best_f1:
+            best_f1 = current_f1
+            best_threshold = float(threshold)
+            best_precision = float(precision_score(y_true, y_pred, zero_division=0))
+            best_recall = float(recall_score(y_true, y_pred, zero_division=0))
+
+    return {
+        "threshold": best_threshold,
+        "f1": best_f1,
+        "precision": best_precision,
+        "recall": best_recall,
+    }
+
+
 def build_usefulness_report(
     *,
     metrics_by_split: dict[str, dict[str, Any]],
+    baseline_metrics_by_split: dict[str, dict[str, Any]],
+    threshold_selection: dict[str, Any],
     leakage_warnings: list[dict[str, Any]],
     false_positives_count: int,
     false_negatives_count: int,
@@ -86,7 +122,9 @@ def build_usefulness_report(
             "valid_average_precision": valid_ap,
             "test_average_precision": test_ap,
         },
-        "metrics_by_split": metrics_by_split,
+        "selected_threshold_metrics_by_split": metrics_by_split,
+        "baseline_threshold_metrics_by_split": baseline_metrics_by_split,
+        "threshold_selection": threshold_selection,
         "leakage_warnings": leakage_warnings,
         "error_analysis": {
             "top_false_positives_saved": false_positives_count,
@@ -107,25 +145,33 @@ def write_usefulness_markdown(path: Path, report: dict[str, Any]) -> None:
         "",
         f"- Branch: `vae_plus_nystrom_gp`",
         f"- Useful: `{report['useful']}`",
+        f"- Selected Validation Threshold: `{report['threshold_selection']['selected_threshold']:.6f}`",
         f"- Valid F1: `{summary['valid_f1']:.4f}`",
         f"- Test F1: `{summary['test_f1']:.4f}`",
         f"- Valid Average Precision: `{summary['valid_average_precision']:.4f}`",
         f"- Test Average Precision: `{summary['test_average_precision']:.4f}`",
         "",
-        "## Split Metrics",
+        "## Selected-Threshold Metrics",
     ]
     for split_name in ("train", "valid", "test"):
-        metrics = report["metrics_by_split"][split_name]
+        metrics = report["selected_threshold_metrics_by_split"][split_name]
         confusion = metrics["confusion_matrix"]
         lines.extend(
             [
                 f"### {split_name.title()}",
+                f"- Threshold: `{metrics['threshold']:.6f}`",
                 f"- Precision: `{metrics['precision']:.4f}`",
                 f"- Recall: `{metrics['recall']:.4f}`",
                 f"- F1: `{metrics['f1']:.4f}`",
                 f"- Average Precision: `{metrics['average_precision']:.4f}`",
                 f"- Confusion Matrix: `TN={confusion['true_negatives']}, FP={confusion['false_positives']}, FN={confusion['false_negatives']}, TP={confusion['true_positives']}`",
             ]
+        )
+    lines.extend(["", "## Baseline Threshold (0.5)"])
+    for split_name in ("train", "valid", "test"):
+        metrics = report["baseline_threshold_metrics_by_split"][split_name]
+        lines.append(
+            f"- {split_name.title()}: precision=`{metrics['precision']:.4f}`, recall=`{metrics['recall']:.4f}`, f1=`{metrics['f1']:.4f}`"
         )
     lines.extend(["", "## Leakage Warnings"])
     if warnings:
@@ -148,4 +194,3 @@ def write_usefulness_json(path: Path, report: dict[str, Any]) -> None:
     """Persist the machine-readable usefulness report."""
 
     write_json(path, report)
-
