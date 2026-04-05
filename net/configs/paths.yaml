@@ -29,6 +29,8 @@ paths:
   model_input_test_tabular: data/model_input/test_tabular.parquet
   artifacts: artifacts
   artifact_models: artifacts/models
+  artifact_bundles_dir: artifacts/bundles
+  artifact_model_bundle_v1_manifest: artifacts/bundles/model_v1/manifest.json
   artifact_reports: artifacts/reports
   artifact_feature_dict: artifacts/feature_dict/base_features.json
   artifact_behavioral_feature_dict: artifacts/feature_dict/behavioral_features.json
@@ -55,6 +57,11 @@ paths:
   artifact_tree_branch_config: artifacts/models/tree_branch/config.json
   artifact_tree_branch_metrics: artifacts/models/tree_branch/metrics.json
   artifact_tree_branch_feature_importances: artifacts/models/tree_branch/feature_importances.json
+  artifact_boosted_branch_dir: artifacts/models/boosted_branch
+  artifact_boosted_branch_model: artifacts/models/boosted_branch/model.joblib
+  artifact_boosted_branch_config: artifacts/models/boosted_branch/config.json
+  artifact_boosted_branch_metrics: artifacts/models/boosted_branch/metrics.json
+  artifact_boosted_branch_feature_importances: artifacts/models/boosted_branch/feature_importances.json
   artifact_gru_branch_dir: artifacts/models/gru_branch
   artifact_gru_branch_weights: artifacts/models/gru_branch/weights.pt
   artifact_gru_branch_config: artifacts/models/gru_branch/config.json
@@ -62,7 +69,18 @@ paths:
   artifact_fusion_dir: artifacts/models/fusion
   artifact_fusion_config: artifacts/models/fusion/config.json
   artifact_fusion_metrics: artifacts/models/fusion/metrics.json
+  artifact_calibration_dir: artifacts/models/calibration
+  artifact_calibration_calibrator: artifacts/models/calibration/calibrator.joblib
+  artifact_calibration_config: artifacts/models/calibration/config.json
+  artifact_calibration_metrics: artifacts/models/calibration/metrics.json
   predictions_dir: predictions
+  outputs_dir: outputs
+  outputs_batch_scoring_dir: outputs/batch_scoring
+  outputs_batch_scoring_predictions: outputs/batch_scoring/predictions.parquet
+  outputs_batch_scoring_summary: outputs/batch_scoring/summary.json
+  outputs_go_runtime_dir: outputs/go_runtime
+  outputs_go_runtime_model_v1_dir: outputs/go_runtime/model_v1
+  outputs_go_runtime_spec: outputs/go_runtime/model_v1/runtime_spec.json
   prediction_vae_latent_train: predictions/vae_latent_train.parquet
   prediction_vae_latent_valid: predictions/vae_latent_valid.parquet
   prediction_vae_latent_test: predictions/vae_latent_test.parquet
@@ -72,10 +90,14 @@ paths:
   prediction_nystrom_tabular_test: predictions/nystrom_tabular_test_predictions.parquet
   prediction_tree_branch_valid: predictions/tree_branch_valid.parquet
   prediction_tree_branch_test: predictions/tree_branch_test.parquet
+  prediction_boosted_branch_valid: predictions/boosted_branch_valid.parquet
+  prediction_boosted_branch_test: predictions/boosted_branch_test.parquet
   prediction_gru_branch_valid: predictions/gru_branch_valid.parquet
   prediction_gru_branch_test: predictions/gru_branch_test.parquet
   prediction_fused_valid: predictions/fused_valid.parquet
   prediction_fused_test: predictions/fused_test.parquet
+  prediction_fused_valid_calibrated: predictions/fused_valid_calibrated.parquet
+  prediction_fused_test_calibrated: predictions/fused_test_calibrated.parquet
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json
@@ -85,6 +107,14 @@ paths:
   reports_first_branch_false_positives: reports/first_branch/top_false_positives.parquet
   reports_first_branch_false_negatives: reports/first_branch/top_false_negatives.parquet
   fusion_dataset_report: reports/fusion_dataset_report.json
+  calibration_report: reports/calibration_report.json
+  business_threshold_report_json: reports/business_threshold_report.json
+  business_threshold_report_md: reports/business_threshold_report.md
+  business_threshold_summary: reports/business_threshold_summary.parquet
+  reports_ablations_dir: reports/ablations
+  reports_ablations_summary: reports/ablations/ablation_summary.parquet
+  reports_ablations_report_md: reports/ablations/ablation_report.md
+  reports_ablations_report_json: reports/ablations/ablation_report.json
   training: training
   serving: serving
   serving_contracts: serving/contracts

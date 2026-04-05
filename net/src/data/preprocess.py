@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from common.config import DEFAULT_PATHS_FILE, load_paths_config, project_root
@@ -22,8 +23,9 @@ from data.validators import (
 )
 
 
-BOOLEAN_TRUE_VALUES = {"1", "true", "t", "yes", "y"}
-BOOLEAN_FALSE_VALUES = {"0", "false", "f", "no", "n"}
+BOOLEAN_TRUE_VALUES = {"1", "true", "t", "yes", "y", "found"}
+BOOLEAN_FALSE_VALUES = {"0", "false", "f", "no", "n", "notfound", "not_found"}
+IEEE_REFERENCE_TIMESTAMP = pd.Timestamp("2017-12-01T00:00:00Z")
 
 
 @dataclass(frozen=True)
@@ -46,6 +48,107 @@ def load_raw_csv(input_path: Path) -> pd.DataFrame:
     return pd.read_csv(input_path, dtype="string", low_memory=False)
 
 
+def _ieee_train_files(input_path: Path) -> tuple[Path, Path | None] | None:
+    if input_path.is_dir():
+        transaction_path = input_path / "train_transaction.csv"
+        identity_path = input_path / "train_identity.csv"
+        if transaction_path.is_file():
+            return transaction_path, identity_path if identity_path.is_file() else None
+        return None
+    if input_path.name == "train_transaction.csv":
+        identity_candidate = input_path.with_name("train_identity.csv")
+        return input_path, identity_candidate if identity_candidate.is_file() else None
+    return None
+
+
+def _load_ieee_training_frame(transaction_path: Path, identity_path: Path | None) -> pd.DataFrame:
+    transaction_frame = load_raw_csv(transaction_path)
+    if identity_path is None:
+        return transaction_frame
+    identity_frame = load_raw_csv(identity_path)
+    return transaction_frame.merge(identity_frame, on="TransactionID", how="left", validate="one_to_one")
+
+
+def _compose_entity_id(frame: pd.DataFrame, columns: list[str], *, fallback_column: str | None = None) -> pd.Series:
+    available = [column for column in columns if column in frame.columns]
+    result = pd.Series([""] * len(frame), index=frame.index, dtype="string")
+    has_value = pd.Series(False, index=frame.index, dtype="boolean")
+
+    for column in available:
+        values = frame[column].astype("string").fillna("").str.strip()
+        mask = values.ne("")
+        segment = pd.Series(f"{column}=", index=frame.index, dtype="string") + values
+        updated = np.where(mask & has_value.to_numpy(dtype=bool), result + "|" + segment, result)
+        result = pd.Series(updated, index=frame.index, dtype="string")
+        updated = np.where(mask & ~has_value.to_numpy(dtype=bool), segment, result)
+        result = pd.Series(updated, index=frame.index, dtype="string")
+        has_value = has_value | mask
+
+    if fallback_column is not None and fallback_column in frame.columns:
+        fallback_values = frame[fallback_column].astype("string").fillna("").str.strip()
+        fallback_mask = ~has_value.to_numpy(dtype=bool) & fallback_values.ne("").to_numpy(dtype=bool)
+        result = pd.Series(np.where(fallback_mask, fallback_values, result), index=frame.index, dtype="string")
+        has_value = has_value | pd.Series(fallback_mask, index=frame.index, dtype="boolean")
+
+    return result.mask(~has_value, pd.NA)
+
+
+def canonicalize_ieee_cis_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    """Map IEEE-CIS training columns into the pipeline's canonical transaction schema."""
+
+    working = frame.copy()
+    rename_map = {
+        "transaction_amt": "amount",
+        "product_cd": "type",
+    }
+    working = working.rename(columns={key: value for key, value in rename_map.items() if key in working.columns})
+
+    if "transaction_dt" in working.columns and "step" not in working.columns:
+        working["step"] = _coerce_integer(working["transaction_dt"])
+    if "step" in working.columns and "transaction_timestamp" not in working.columns:
+        step_seconds = pd.to_numeric(working["step"], errors="coerce")
+        working["transaction_timestamp"] = pd.to_datetime(
+            IEEE_REFERENCE_TIMESTAMP + pd.to_timedelta(step_seconds, unit="s"),
+            utc=True,
+        )
+    if "transaction_id" not in working.columns and "source_row_number" in working.columns:
+        working["transaction_id"] = "ieee_" + working["source_row_number"].astype("Int64").astype("string")
+
+    if "name_orig" not in working.columns:
+        working["name_orig"] = _compose_entity_id(
+            working,
+            ["card1", "card2", "card3", "card5", "card6"],
+            fallback_column="transaction_id",
+        )
+    if "name_dest" not in working.columns:
+        working["name_dest"] = _compose_entity_id(
+            working,
+            ["type", "addr1", "addr2", "p_emaildomain", "r_emaildomain"],
+            fallback_column="transaction_id",
+        )
+    if "is_flagged_fraud" not in working.columns:
+        working["is_flagged_fraud"] = pd.Series(False, index=working.index, dtype="boolean")
+    return working
+
+
+def _load_input_frames(input_paths: list[Path]) -> list[tuple[pd.DataFrame, str]]:
+    if len(input_paths) == 1:
+        ieee_files = _ieee_train_files(input_paths[0])
+        if ieee_files is not None:
+            transaction_path, identity_path = ieee_files
+            merged = _load_ieee_training_frame(transaction_path, identity_path)
+            return [(merged, f"{input_paths[0].name}:train")]
+
+    ieee_transaction = next((path for path in input_paths if path.name == "train_transaction.csv"), None)
+    if ieee_transaction is not None:
+        identity_path = next((path for path in input_paths if path.name == "train_identity.csv"), None)
+        merged = _load_ieee_training_frame(ieee_transaction, identity_path)
+        source_name = ieee_transaction.parent.name if identity_path is not None else ieee_transaction.name
+        return [(merged, f"{source_name}:train")]
+
+    return [(load_raw_csv(path), path.name) for path in input_paths]
+
+
 def prepare_raw_frame(raw_frame: pd.DataFrame, *, source_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Normalize headers and trim string values without losing the original frame."""
 
@@ -58,6 +161,8 @@ def prepare_raw_frame(raw_frame: pd.DataFrame, *, source_name: str) -> tuple[pd.
         if column in {"source_row_number", "source_file_row_number"}:
             continue
         normalized[column] = normalized[column].astype("string").str.strip()
+    if {"transaction_id", "is_fraud", "transaction_dt"}.issubset(set(normalized.columns)):
+        normalized = canonicalize_ieee_cis_frame(normalized)
     return normalized, normalized.copy()
 
 
@@ -230,12 +335,11 @@ def preprocess_raw_transactions(
     prepared_frames: list[pd.DataFrame] = []
     coercion_frames: list[pd.DataFrame] = []
     input_row_counts: dict[str, int] = {}
-    for path in sorted(input_paths, key=lambda item: item.as_posix()):
-        raw_input = load_raw_csv(path)
-        prepared_raw_frame, prepared_coercion_frame = prepare_raw_frame(raw_input, source_name=path.name)
+    for raw_input, source_name in _load_input_frames(sorted(input_paths, key=lambda item: item.as_posix())):
+        prepared_raw_frame, prepared_coercion_frame = prepare_raw_frame(raw_input, source_name=source_name)
         prepared_frames.append(prepared_raw_frame)
         coercion_frames.append(prepared_coercion_frame)
-        input_row_counts[str(path)] = int(len(raw_input))
+        input_row_counts[source_name] = int(len(raw_input))
 
     prepared_raw = pd.concat(prepared_frames, axis=0, ignore_index=True)
     prepared_for_coercion = pd.concat(coercion_frames, axis=0, ignore_index=True)

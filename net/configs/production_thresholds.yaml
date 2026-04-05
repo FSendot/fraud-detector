@@ -1,0 +1,24 @@
+policy:
+  score_field: calibrated_score
+  action_order:
+    - allow
+    - review
+    - block
+  actions:
+    allow:
+      max_score_exclusive: 0.15
+      rationale: Low-risk traffic stays on the non-intervening path.
+    review:
+      min_score_inclusive: 0.15
+      max_score_exclusive: 0.55
+      rationale: Mid-risk traffic is routed to manual or asynchronous review.
+    block:
+      min_score_inclusive: 0.55
+      rationale: High-risk traffic is eligible for hard intervention once shadow mode is retired.
+  shadow_defaults:
+    enabled: true
+    emit_decision_recommendation_only: true
+    log_branch_outputs: true
+  fallback:
+    on_missing_score: review
+    on_contract_mismatch: review

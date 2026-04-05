@@ -14,12 +14,12 @@ class TreeBranchConfig:
     """Configuration for the ExtraTrees fraud branch."""
 
     random_state: int = 7
-    n_estimators: int = 400
+    n_estimators: int = 600
     criterion: str = "gini"
     max_depth: int | None = None
     min_samples_split: int = 2
-    min_samples_leaf: int = 1
-    max_features: str | int | float = "sqrt"
+    min_samples_leaf: int = 5
+    max_features: str | int | float = 0.5
     bootstrap: bool = False
     class_weight: str | dict[str, float] | None = "balanced"
     n_jobs: int = -1

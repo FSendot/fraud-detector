@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--downsample-ratio",
         type=float,
-        default=3.0,
+        default=10.0,
         help="Maximum negative-to-positive ratio kept in the training set after deterministic downsampling.",
     )
     parser.add_argument(

@@ -1,0 +1,25 @@
+retraining:
+  cadence:
+    minimum_days_between_runs: 7
+    full_refresh_days: 30
+  triggers:
+    score_drift_psi: 0.25
+    feature_drift_psi: 0.3
+    precision_drop_absolute: 0.08
+    recall_drop_absolute: 0.08
+    brier_score_increase_absolute: 0.02
+    contract_mismatch_rate: 0.01
+    data_volume_growth_ratio: 1.25
+  gating:
+    minimum_new_rows: 50000
+    require_label_coverage_ratio: 0.9
+    require_shadow_evaluation_pass: true
+    require_candidate_outperforms_active_on:
+      - average_precision
+      - business_threshold_f1
+  rollback:
+    enabled: true
+    critical_metric_drop_absolute:
+      average_precision: 0.05
+      business_threshold_f1: 0.05
+      roc_auc: 0.03

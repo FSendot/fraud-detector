@@ -15,6 +15,7 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
     precision_score,
+    precision_recall_curve,
     recall_score,
 )
 
@@ -69,31 +70,70 @@ def select_best_threshold(
     *,
     candidate_count: int = 200,
 ) -> dict[str, float]:
-    """Choose the validation threshold that maximizes F1."""
+    """Choose the validation threshold that maximizes F1.
+
+    ``candidate_count`` is retained for backward-compatible call sites, but the
+    current implementation searches the exact precision-recall thresholds for a
+    stronger validation-selected operating point.
+    """
 
     y_true = labels.astype(int).to_numpy()
     y_score = np.asarray(probabilities, dtype=float)
-    thresholds = np.unique(np.quantile(y_score, np.linspace(0.0, 1.0, candidate_count + 1)))
+    precision, recall, thresholds = precision_recall_curve(y_true, y_score)
+    if thresholds.size == 0:
+        return {
+            "threshold": 0.5,
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+        }
 
-    best_threshold = 0.5
-    best_f1 = -1.0
-    best_precision = 0.0
-    best_recall = 0.0
-    for threshold in thresholds:
-        y_pred = (y_score >= threshold).astype(int)
-        current_f1 = float(f1_score(y_true, y_pred, zero_division=0))
-        if current_f1 > best_f1:
-            best_f1 = current_f1
-            best_threshold = float(threshold)
-            best_precision = float(precision_score(y_true, y_pred, zero_division=0))
-            best_recall = float(recall_score(y_true, y_pred, zero_division=0))
+    precision_values = precision[:-1]
+    recall_values = recall[:-1]
+    f1_values = np.divide(
+        2 * precision_values * recall_values,
+        precision_values + recall_values,
+        out=np.zeros_like(thresholds, dtype=float),
+        where=(precision_values + recall_values) > 0,
+    )
+    best_f1 = float(np.nanmax(f1_values))
+    best_indices = np.flatnonzero(np.isclose(f1_values, best_f1, atol=1e-12, rtol=0.0))
+    best_index = max(
+        best_indices.tolist(),
+        key=lambda index: (float(precision_values[index]), float(thresholds[index])),
+    )
 
     return {
-        "threshold": best_threshold,
+        "threshold": float(thresholds[best_index]),
         "f1": best_f1,
-        "precision": best_precision,
-        "recall": best_recall,
+        "precision": float(precision_values[best_index]),
+        "recall": float(recall_values[best_index]),
     }
+
+
+def resolve_threshold_selection(
+    labels: pd.Series,
+    probabilities: np.ndarray,
+    *,
+    strategy: str,
+    fixed_threshold: float,
+    candidate_count: int = 200,
+) -> dict[str, Any]:
+    """Resolve a decision threshold using a supported validation-only strategy."""
+
+    if strategy == "fixed":
+        return {
+            "strategy": strategy,
+            "threshold": float(fixed_threshold),
+        }
+    if strategy == "validation_f1":
+        selected = select_best_threshold(labels, probabilities, candidate_count=candidate_count)
+        return {
+            "strategy": strategy,
+            **selected,
+        }
+    msg = f"unsupported threshold strategy: {strategy}"
+    raise ValueError(msg)
 
 
 def build_usefulness_report(

@@ -14,12 +14,12 @@ class VAEConfig:
     """Configuration for the tabular VAE."""
 
     input_dim: int
-    latent_dim: int = 8
-    hidden_dims: tuple[int, ...] = (64, 32)
-    learning_rate: float = 1e-3
-    batch_size: int = 256
-    epochs: int = 20
-    beta: float = 0.1
+    latent_dim: int = 16
+    hidden_dims: tuple[int, ...] = (128, 64)
+    learning_rate: float = 5e-4
+    batch_size: int = 512
+    epochs: int = 30
+    beta: float = 0.05
     seed: int = 7
     device: str = "cpu"
     logvar_min: float = -10.0

@@ -28,6 +28,7 @@ PREFERRED_DIVERSITY_COLUMNS = (
     "merchant_name",
 )
 SOURCE_COLUMN_SPECS: dict[str, str] = {
+    "transaction_id": "Stable transaction identifier retained for downstream split reuse.",
     "source_row_number": "Original row number from the raw input after deterministic preprocessing.",
     "transaction_order": "Stable global transaction order assigned during preprocessing.",
     "transaction_timestamp": "Parsed event timestamp when the source dataset provides one.",
@@ -118,10 +119,7 @@ def _float_result(series: pd.Series) -> pd.Series:
 
 
 def _source_columns(frame: pd.DataFrame, *, entity_column: str) -> list[str]:
-    columns: list[str] = []
-    for column in SOURCE_COLUMN_SPECS:
-        if column in frame.columns and column not in columns:
-            columns.append(column)
+    columns = list(frame.columns)
     if entity_column not in columns:
         columns.append(entity_column)
     return columns

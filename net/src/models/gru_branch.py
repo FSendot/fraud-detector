@@ -13,16 +13,16 @@ class GRUBranchConfig:
     """Configuration for the sequence GRU fraud branch."""
 
     sequence_input_dim: int
-    hidden_dim: int = 64
+    hidden_dim: int = 128
     gru_layers: int = 1
-    classifier_hidden_dim: int = 32
-    dropout: float = 0.1
+    classifier_hidden_dim: int = 64
+    dropout: float = 0.2
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
-    batch_size: int = 256
-    epochs: int = 10
-    patience: int = 3
-    downsample_ratio: float = 3.0
+    batch_size: int = 512
+    epochs: int = 15
+    patience: int = 4
+    downsample_ratio: float = 10.0
     max_train_samples: int | None = None
     max_valid_monitor_samples: int = 200000
     seed: int = 7

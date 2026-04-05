@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 
-REQUIRED_ID_CANDIDATES = ("name_orig", "name_dest")
+REQUIRED_ID_CANDIDATES = ("transaction_id", "name_orig", "name_dest")
 NUMERIC_CANDIDATES = (
     "amount",
     "oldbalance_org",
@@ -27,8 +27,32 @@ TIMESTAMP_CANDIDATES = (
     "date",
     "datetime",
 )
-STRING_CANDIDATES = ("type", "name_orig", "name_dest")
+STRING_CANDIDATES = (
+    "transaction_id",
+    "type",
+    "name_orig",
+    "name_dest",
+    "product_cd",
+    "card4",
+    "card6",
+    "p_emaildomain",
+    "r_emaildomain",
+    "device_type",
+    "device_info",
+    "id_30",
+    "id_31",
+    "id_33",
+    "id_34",
+    "id_15",
+    "id_23",
+    "id_28",
+    "m4",
+)
 ORDER_CANDIDATES = ("transaction_timestamp", "timestamp", "event_timestamp", "step")
+NUMERIC_PATTERN = re.compile(
+    r"^(card[1235]|addr[12]|dist[12]|c\d+|d\d+|v\d+|id_(0[1-9]|10|11|13|14|17|18|19|20|21|22|24|25|26|32))$"
+)
+BOOLEAN_PATTERN = re.compile(r"^(m[12356789]|id_12|id_16|id_27|id_29|id_35|id_36|id_37|id_38)$")
 
 
 @dataclass(frozen=True)
@@ -75,15 +99,29 @@ def build_transaction_schema(columns: Iterable[str]) -> TransactionSchema:
 
     normalized = tuple(columns)
     balance_columns = tuple(column for column in normalized if "balance" in column)
+    numeric_columns = {
+        column
+        for column in normalized
+        if column in NUMERIC_CANDIDATES or bool(NUMERIC_PATTERN.match(column))
+    }
+    boolean_columns = {
+        column
+        for column in normalized
+        if column in BOOLEAN_CANDIDATES or bool(BOOLEAN_PATTERN.match(column))
+    }
+    string_columns = {
+        column
+        for column in normalized
+        if column in STRING_CANDIDATES or column in REQUIRED_ID_CANDIDATES
+    }
     return TransactionSchema(
         columns=normalized,
         required_id_columns=tuple(column for column in REQUIRED_ID_CANDIDATES if column in normalized),
-        numeric_columns=tuple(column for column in NUMERIC_CANDIDATES if column in normalized),
+        numeric_columns=tuple(column for column in normalized if column in numeric_columns),
         balance_columns=balance_columns,
         integer_columns=tuple(column for column in INTEGER_CANDIDATES if column in normalized),
-        boolean_columns=tuple(column for column in BOOLEAN_CANDIDATES if column in normalized),
+        boolean_columns=tuple(column for column in normalized if column in boolean_columns),
         timestamp_columns=tuple(column for column in TIMESTAMP_CANDIDATES if column in normalized),
-        string_columns=tuple(column for column in STRING_CANDIDATES if column in normalized),
+        string_columns=tuple(column for column in normalized if column in string_columns),
         order_columns=tuple(column for column in ORDER_CANDIDATES if column in normalized),
     )
-

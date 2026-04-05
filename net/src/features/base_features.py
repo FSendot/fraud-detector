@@ -15,6 +15,7 @@ from features.feature_registry import FeatureRegistry, FeatureSpec, write_featur
 
 
 SOURCE_COLUMN_SPECS: dict[str, str] = {
+    "transaction_id": "Stable transaction identifier carried through from the source dataset.",
     "source_row_number": "Original row number from the raw input after deterministic preprocessing.",
     "transaction_order": "Stable transaction order assigned during preprocessing.",
     "transaction_timestamp": "Parsed transaction timestamp when the raw dataset provides one.",
@@ -126,7 +127,7 @@ def _derived_feature_specs(frame: pd.DataFrame) -> list[FeatureSpec]:
 def build_base_feature_frame(clean_frame: pd.DataFrame) -> tuple[pd.DataFrame, FeatureRegistry]:
     """Build point-in-time-safe scalar base features from cleaned transactions."""
 
-    source_columns = [column for column in SOURCE_COLUMN_SPECS if column in clean_frame.columns]
+    source_columns = list(clean_frame.columns)
     feature_frame = clean_frame.loc[:, source_columns].copy()
 
     if {"oldbalance_org", "newbalance_orig"} <= set(clean_frame.columns):
@@ -218,4 +219,3 @@ def build_and_write_base_features(
         source_feature_count=len(registry.source_features),
         derived_feature_count=len(registry.derived_features),
     )
-

@@ -17,10 +17,10 @@ class NystromGPConfig:
 
     random_state: int = 7
     kernel: str = "rbf"
-    gamma: float = 0.1
-    n_components: int = 128
-    logistic_c: float = 1.0
-    max_iter: int = 500
+    gamma: float = 0.05
+    n_components: int = 256
+    logistic_c: float = 2.0
+    max_iter: int = 1000
 
     def to_payload(self) -> dict[str, Any]:
         return asdict(self)
@@ -57,4 +57,3 @@ def fit_nystrom_classifier(
     )
     classifier.fit(features, labels)
     return classifier
-

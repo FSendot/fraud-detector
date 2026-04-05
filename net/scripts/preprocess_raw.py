@@ -31,7 +31,7 @@ def _resolve_input_path(raw_candidate: Path) -> Path:
         msg = f"input CSV must live under {raw_dir}"
         raise ValueError(msg) from exc
 
-    if not resolved.is_file():
+    if not resolved.exists():
         raise FileNotFoundError(resolved)
     return resolved
 
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         required=True,
         action="append",
-        help="Raw CSV file in data/raw/, given as a filename or project-relative path. Repeat for multiple files.",
+        help="Raw CSV file or dataset directory in data/raw/. Repeat for multiple files when needed.",
     )
     parser.add_argument(
         "--output",

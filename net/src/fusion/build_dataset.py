@@ -29,6 +29,10 @@ DEFAULT_BRANCH_FILES = {
         "valid": "prediction_tree_branch_valid",
         "test": "prediction_tree_branch_test",
     },
+    "boosted_branch": {
+        "valid": "prediction_boosted_branch_valid",
+        "test": "prediction_boosted_branch_test",
+    },
     "gru_branch": {
         "valid": "prediction_gru_branch_valid",
         "test": "prediction_gru_branch_test",

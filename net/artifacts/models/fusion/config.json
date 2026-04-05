@@ -1,10 +1,24 @@
 {
+  "auto_select_candidates": [
+    "best_branch",
+    "mean_top_k",
+    "geometric_mean_top_k",
+    "ap_weighted_average",
+    "logistic_meta",
+    "bayesian_reliability"
+  ],
+  "auto_select_complexity_penalty": 0.00025,
+  "auto_select_max_branches": 3,
+  "auto_select_metric": "average_precision",
+  "auto_select_min_valid_average_precision": 0.001,
   "bayesian_alpha_prior": 1.0,
   "bayesian_beta_prior": 1.0,
   "logistic_c": 1.0,
   "logistic_max_iter": 500,
-  "mode": "logistic_meta",
+  "mode": "auto_select",
   "random_state": 7,
   "threshold": 0.5,
+  "threshold_candidate_count": 200,
+  "threshold_strategy": "validation_f1",
   "weighted_average_weights": null
 }

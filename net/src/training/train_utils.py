@@ -232,6 +232,32 @@ def default_tree_branch_prediction_paths() -> tuple[Path, Path, Path]:
     )
 
 
+def default_boosted_branch_paths() -> tuple[Path, Path, Path, Path, Path, Path, Path]:
+    """Return configured default paths for boosted-branch artifacts."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["model_input_train_tabular"],
+        paths["model_input_valid_tabular"],
+        paths["model_input_test_tabular"],
+        paths["artifact_feature_contract_json"],
+        paths["artifact_boosted_branch_model"],
+        paths["artifact_boosted_branch_config"],
+        paths["artifact_boosted_branch_metrics"],
+    )
+
+
+def default_boosted_branch_prediction_paths() -> tuple[Path, Path, Path]:
+    """Return configured default paths for boosted-branch outputs."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["prediction_boosted_branch_valid"],
+        paths["prediction_boosted_branch_test"],
+        paths["artifact_boosted_branch_feature_importances"],
+    )
+
+
 def default_gru_branch_paths() -> tuple[Path, Path, Path, Path, Path, Path, Path, Path, Path, Path]:
     """Return configured default paths for GRU branch inputs and artifacts."""
 
