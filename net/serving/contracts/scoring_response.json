@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ShadowScoringResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "shadow_mode",
+    "mode",
+    "model_version",
+    "bundle_manifest",
+    "runtime_defaults",
+    "contract_check",
+    "records"
+  ],
+  "properties": {
+    "request_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "shadow_mode": {
+      "type": "boolean",
+      "const": true
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "shadow_only"
+      ]
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "bundle_manifest": {
+      "type": "string"
+    },
+    "runtime_defaults": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "contract_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valid",
+        "errors",
+        "warnings",
+        "rebuild_applied",
+        "source_stage"
+      ],
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rebuild_applied": {
+          "type": "boolean"
+        },
+        "source_stage": {
+          "type": "string"
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transaction_id",
+          "model_version",
+          "shadow_mode",
+          "branch_outputs",
+          "raw_fused_score",
+          "calibrated_score",
+          "decision_threshold",
+          "predicted_label",
+          "metadata"
+        ],
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "is_fraud": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              0,
+              1,
+              null
+            ]
+          },
+          "model_version": {
+            "type": "string"
+          },
+          "shadow_mode": {
+            "type": "boolean",
+            "const": true
+          },
+          "branch_outputs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "score",
+                "predicted_label_at_0_5"
+              ],
+              "properties": {
+                "score": {
+                  "type": "number"
+                },
+                "predicted_label_at_0_5": {
+                  "type": "integer",
+                  "enum": [
+                    0,
+                    1
+                  ]
+                }
+              }
+            }
+          },
+          "raw_fused_score": {
+            "type": "number"
+          },
+          "calibrated_score": {
+            "type": "number"
+          },
+          "decision_threshold": {
+            "type": "number"
+          },
+          "predicted_label": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

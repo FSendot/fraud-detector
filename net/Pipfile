@@ -9,9 +9,10 @@ numpy = "*"
 pandas = "*"
 scikit-learn = "*"
 joblib = "*"
+pyarrow = "*"
+torch = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.11"
-
