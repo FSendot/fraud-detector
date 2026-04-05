@@ -22,7 +22,12 @@ func TestMapActionToDecision(t *testing.T) {
 }
 
 func TestBuildFeaturesSetsKnownFieldsAndLeavesOthersMissing(t *testing.T) {
-	engine, err := NewEngine("../../../net/outputs/go_runtime/model_v1/runtime_spec.json")
+	specPath, err := ResolveRuntimeSpecPath()
+	if err != nil {
+		t.Fatalf("ResolveRuntimeSpecPath() error = %v", err)
+	}
+
+	engine, err := NewEngine(specPath)
 	if err != nil {
 		t.Fatalf("NewEngine() error = %v", err)
 	}

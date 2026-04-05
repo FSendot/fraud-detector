@@ -11,7 +11,10 @@ import (
 	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
-const runtimeSpecEnvVar = "FRAUD_RUNTIME_SPEC_PATH"
+const (
+	runtimeSpecEnvVar   = "FRAUD_RUNTIME_SPEC_PATH"
+	runtimeSpecFilename = "runtime_spec.json"
+)
 
 type Engine struct {
 	scorer *fraudruntime.Scorer
@@ -38,12 +41,12 @@ func ResolveRuntimeSpecPath() (string, error) {
 		if _, err := os.Stat(envPath); err != nil {
 			return "", fmt.Errorf("%s points to an unreadable file: %w", runtimeSpecEnvVar, err)
 		}
-		return envPath, nil
+		return filepath.Abs(envPath)
 	}
 
-	candidates := []string{
-		"../net/outputs/go_runtime/model_v1/runtime_spec.json",
-		"net/outputs/go_runtime/model_v1/runtime_spec.json",
+	candidates := append([]string{}, candidateRuntimeSpecPaths()...)
+	if cwd, err := os.Getwd(); err == nil {
+		candidates = append(candidates, runtimeSpecPathsFromRoot(cwd)...)
 	}
 
 	for _, candidate := range candidates {
@@ -57,6 +60,27 @@ func ResolveRuntimeSpecPath() (string, error) {
 	}
 
 	return "", fmt.Errorf("runtime spec not found; set %s or place runtime_spec.json in a standard repo path", runtimeSpecEnvVar)
+}
+
+func candidateRuntimeSpecPaths() []string {
+	return []string{
+		filepath.Join("..", "net", "outputs", "go_runtime", "model_v1", runtimeSpecFilename),
+		filepath.Join("net", "outputs", "go_runtime", "model_v1", runtimeSpecFilename),
+	}
+}
+
+func runtimeSpecPathsFromRoot(start string) []string {
+	var candidates []string
+	current := start
+	for {
+		candidates = append(candidates, filepath.Join(current, "net", "outputs", "go_runtime", "model_v1", runtimeSpecFilename))
+		parent := filepath.Dir(current)
+		if parent == current {
+			break
+		}
+		current = parent
+	}
+	return candidates
 }
 
 func (e *Engine) ScoreTransaction(req *pb.ProcessTransactionRequest, correlationID string) (Result, error) {

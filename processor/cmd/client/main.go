@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -14,7 +15,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", "localhost:50051", "server address")
+	addr := flag.String("addr", defaultServerAddress(), "server address")
 	txID := flag.String("tx-id", "", "transaction ID")
 	userID := flag.String("user-id", "", "user ID")
 	personID := flag.String("person-id", "", "person ID")
@@ -92,4 +93,22 @@ func main() {
 	fmt.Printf("  Scoring ms:      %.2f\n", resp.ScoringDurationMs)
 	fmt.Printf("  Update ms:       %.2f\n", resp.ProfileUpdateDurationMs)
 	fmt.Printf("  Correlation ID:  %s\n", resp.CorrelationId)
+}
+
+func defaultServerAddress() string {
+	if envAddr := os.Getenv("GRPC_ADDRESS"); envAddr != "" {
+		return envAddr
+	}
+
+	host := os.Getenv("GRPC_HOST")
+	if host == "" {
+		host = "127.0.0.1"
+	}
+
+	port := os.Getenv("GRPC_PORT")
+	if port == "" {
+		port = "50051"
+	}
+
+	return fmt.Sprintf("%s:%s", host, port)
 }

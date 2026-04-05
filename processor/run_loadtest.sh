@@ -10,7 +10,10 @@ export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-local}"
 export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-local}"
 export DYNAMODB_ENDPOINT="${DYNAMODB_ENDPOINT:-http://localhost:8000}"
 export FRAUD_RUNTIME_SPEC_PATH="${FRAUD_RUNTIME_SPEC_PATH:-${PROJECT_ROOT}/net/outputs/go_runtime/model_v1/runtime_spec.json}"
+export LOADTEST_FEATURE_SPEC_PATH="${LOADTEST_FEATURE_SPEC_PATH:-${FRAUD_RUNTIME_SPEC_PATH}}"
+export GRPC_HOST="${GRPC_HOST:-127.0.0.1}"
 export GRPC_PORT="${GRPC_PORT:-50051}"
+export GRPC_ADDRESS="${GRPC_ADDRESS:-${GRPC_HOST}:${GRPC_PORT}}"
 export LOADTEST_REQUESTS="${LOADTEST_REQUESTS:-2500}"
 export LOADTEST_CONCURRENCY="${LOADTEST_CONCURRENCY:-40}"
 export LOADTEST_STABLE_USERS="${LOADTEST_STABLE_USERS:-200}"
@@ -110,16 +113,17 @@ echo "Starting processor server on :${GRPC_PORT}..."
 go run ./cmd/server &
 SERVER_PID=$!
 
-wait_for_server "localhost:${GRPC_PORT}"
+wait_for_server "${GRPC_ADDRESS}"
 
 echo "Running high-volume load test..."
 go run ./cmd/loadtest \
-  -addr "localhost:${GRPC_PORT}" \
+  -addr "${GRPC_ADDRESS}" \
   -requests "${LOADTEST_REQUESTS}" \
   -concurrency "${LOADTEST_CONCURRENCY}" \
   -stable-users "${LOADTEST_STABLE_USERS}" \
   -user-prefix "${LOADTEST_USER_PREFIX}" \
-  -output-dir "${LOADTEST_OUTPUT_DIR}"
+  -output-dir "${LOADTEST_OUTPUT_DIR}" \
+  -feature-spec "${LOADTEST_FEATURE_SPEC_PATH}"
 
 echo
 echo "Load test completed."

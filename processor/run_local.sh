@@ -10,7 +10,9 @@ export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-local}"
 export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-local}"
 export DYNAMODB_ENDPOINT="${DYNAMODB_ENDPOINT:-http://localhost:8000}"
 export FRAUD_RUNTIME_SPEC_PATH="${FRAUD_RUNTIME_SPEC_PATH:-${PROJECT_ROOT}/net/outputs/go_runtime/model_v1/runtime_spec.json}"
+export GRPC_HOST="${GRPC_HOST:-127.0.0.1}"
 export GRPC_PORT="${GRPC_PORT:-50051}"
+export GRPC_ADDRESS="${GRPC_ADDRESS:-${GRPC_HOST}:${GRPC_PORT}}"
 
 SERVER_PID=""
 
@@ -90,7 +92,7 @@ run_client() {
   local timestamp="$2"
 
   go run ./cmd/client \
-    -addr "localhost:${GRPC_PORT}" \
+    -addr "${GRPC_ADDRESS}" \
     -tx-id tx_local_001 \
     -user-id u_local_001 \
     -person-id p_local_001 \
@@ -127,7 +129,7 @@ echo "Starting processor server on :${GRPC_PORT}..."
 go run ./cmd/server &
 SERVER_PID=$!
 
-wait_for_server "localhost:${GRPC_PORT}"
+wait_for_server "${GRPC_ADDRESS}"
 
 echo "Running first local request..."
 run_client "req_local_001" "2026-04-03T10:22:00Z"
