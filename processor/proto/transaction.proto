@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package fraud;
+
+option go_package = "github.com/fraud-detector/processor/proto";
+
+message TransactionEvent {
+  string transaction_id      = 1;
+  string user_id             = 2;
+  string person_id           = 3;
+  string account_id          = 4;
+  double amount              = 5;
+  string currency            = 6;
+  string timestamp           = 7;
+  string channel             = 8;
+  string destination_account = 9;
+  string country             = 10;
+}
+
+message TransactionResponse {
+  string transaction_id = 1;
+  string decision       = 2; // "allowed", "blocked", "challenged"
+  int32  score          = 3;
+  string correlation_id = 4;
+}
+
+service FraudProcessor {
+  rpc ProcessTransaction(TransactionEvent) returns (TransactionResponse);
+}
