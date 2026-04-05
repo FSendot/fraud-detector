@@ -4,26 +4,43 @@ package fraud;
 
 option go_package = "github.com/fraud-detector/processor/proto";
 
-message TransactionEvent {
+message RequestTrace {
+  string request_id       = 1;
+  string source_system    = 2;
+  string source_component = 3;
+  string source_region    = 4;
+}
+
+message TransactionContext {
   string transaction_id      = 1;
   string user_id             = 2;
   string person_id           = 3;
   string account_id          = 4;
-  double amount              = 5;
+  string destination_account = 5;
   string currency            = 6;
-  string timestamp           = 7;
+  string country             = 7;
   string channel             = 8;
-  string destination_account = 9;
-  string country             = 10;
+  string event_timestamp     = 9;
+}
+
+message ProcessTransactionRequest {
+  RequestTrace trace                   = 1;
+  TransactionContext transaction       = 2;
+  map<string, double> features         = 3;
+  map<string, string> metadata_labels  = 4;
 }
 
 message TransactionResponse {
-  string transaction_id = 1;
-  string decision       = 2; // "allowed", "blocked", "challenged"
-  int32  score          = 3;
-  string correlation_id = 4;
+  string transaction_id   = 1;
+  string decision         = 2; // "allowed", "blocked", "challenged"
+  int32  score            = 3;
+  string correlation_id   = 4;
+  string request_id       = 5;
+  string source_system    = 6;
+  string model_version    = 7;
+  double calibrated_score = 8;
 }
 
 service FraudProcessor {
-  rpc ProcessTransaction(TransactionEvent) returns (TransactionResponse);
+  rpc ProcessTransaction(ProcessTransactionRequest) returns (TransactionResponse);
 }

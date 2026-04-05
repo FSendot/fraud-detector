@@ -13,8 +13,8 @@ const (
 	WeightDestination = 10
 )
 
-// Result holds the output of the fraud scoring engine.
-type Result struct {
+// RulesResult holds the output of the legacy rule-based fraud scoring engine.
+type RulesResult struct {
 	Score           int
 	Decision        string
 	FlagAmount      bool
@@ -24,13 +24,15 @@ type Result struct {
 }
 
 // Evaluate runs all fraud rules against the transaction and user profile.
-func Evaluate(tx *pb.TransactionEvent, profile *dynamo.UserProfile) Result {
-	var r Result
+func Evaluate(tx *pb.ProcessTransactionRequest, profile *dynamo.UserProfile) RulesResult {
+	var r RulesResult
+	transaction := tx.GetTransaction()
+	amount := tx.GetFeatures()["amount"]
 
-	r.FlagAmount = flagAmount(tx.Amount, profile.AvgAmount, profile.StdDevAmount)
-	r.FlagCountry = flagCountry(tx.Country, profile.TypicalCountries)
+	r.FlagAmount = flagAmount(amount, profile.AvgAmount, profile.StdDevAmount)
+	r.FlagCountry = flagCountry(transaction.GetCountry(), profile.TypicalCountries)
 	r.FlagVelocity = flagVelocity(profile.TxLast10Min)
-	r.FlagDestination = flagDestination(tx.DestinationAccount, profile.KnownDestinations)
+	r.FlagDestination = flagDestination(transaction.GetDestinationAccount(), profile.KnownDestinations)
 
 	if r.FlagAmount {
 		r.Score += WeightAmount

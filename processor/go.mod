@@ -1,8 +1,9 @@
 module github.com/fraud-detector/processor
 
-go 1.24
+go 1.26
 
 require (
+	frauddetector/serving/go v0.0.0
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/config v1.32.14
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.37
@@ -32,3 +33,5 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 )
+
+replace frauddetector/serving/go => ../net/serving/go

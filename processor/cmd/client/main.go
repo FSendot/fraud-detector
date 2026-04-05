@@ -25,10 +25,17 @@ func main() {
 	channel := flag.String("channel", "web", "channel (web, mobile, atm)")
 	dest := flag.String("dest", "", "destination account")
 	country := flag.String("country", "", "country code")
+	requestID := flag.String("request-id", "", "traceable upstream request ID")
+	sourceSystem := flag.String("source-system", "processor-client", "originating system name")
+	sourceComponent := flag.String("source-component", "cli", "originating component")
+	sourceRegion := flag.String("source-region", "local", "originating region")
 	flag.Parse()
 
 	if *txID == "" || *userID == "" || *amount == 0 {
 		log.Fatal("required flags: -tx-id, -user-id, -amount")
+	}
+	if *requestID == "" {
+		*requestID = fmt.Sprintf("req-%s", *txID)
 	}
 
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -42,24 +49,43 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	resp, err := client.ProcessTransaction(ctx, &pb.TransactionEvent{
-		TransactionId:      *txID,
-		UserId:             *userID,
-		PersonId:           *personID,
-		AccountId:          *accountID,
-		Amount:             *amount,
-		Currency:           *currency,
-		Timestamp:          *ts,
-		Channel:            *channel,
-		DestinationAccount: *dest,
-		Country:            *country,
+	resp, err := client.ProcessTransaction(ctx, &pb.ProcessTransactionRequest{
+		Trace: &pb.RequestTrace{
+			RequestId:       *requestID,
+			SourceSystem:    *sourceSystem,
+			SourceComponent: *sourceComponent,
+			SourceRegion:    *sourceRegion,
+		},
+		Transaction: &pb.TransactionContext{
+			TransactionId:      *txID,
+			UserId:             *userID,
+			PersonId:           *personID,
+			AccountId:          *accountID,
+			DestinationAccount: *dest,
+			Currency:           *currency,
+			Country:            *country,
+			Channel:            *channel,
+			EventTimestamp:     *ts,
+		},
+		Features: map[string]float64{
+			"amount": *amount,
+		},
+		MetadataLabels: map[string]string{
+			"channel":     *channel,
+			"environment": "local-dev",
+		},
 	})
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	fmt.Printf("Transaction: %s\n", resp.TransactionId)
-	fmt.Printf("Decision:    %s\n", resp.Decision)
-	fmt.Printf("Score:       %d\n", resp.Score)
-	fmt.Printf("Correlation: %s\n", resp.CorrelationId)
+	fmt.Printf("Response:\n")
+	fmt.Printf("  Transaction ID:  %s\n", resp.TransactionId)
+	fmt.Printf("  Request ID:      %s\n", resp.RequestId)
+	fmt.Printf("  Source System:   %s\n", resp.SourceSystem)
+	fmt.Printf("  Decision:        %s\n", resp.Decision)
+	fmt.Printf("  Score:           %d\n", resp.Score)
+	fmt.Printf("  Model Version:   %s\n", resp.ModelVersion)
+	fmt.Printf("  Cal. Score:      %.4f\n", resp.CalibratedScore)
+	fmt.Printf("  Correlation ID:  %s\n", resp.CorrelationId)
 }

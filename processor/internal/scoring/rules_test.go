@@ -19,16 +19,12 @@ func baseProfile() *dynamo.UserProfile {
 		TypicalChannels:   []string{"web", "mobile"},
 		KnownDestinations: []string{"acc_456", "acc_789"},
 		LastCountry:       "AR",
-		LastTimestamp:      "2026-04-03T10:22:00Z",
+		LastTimestamp:     "2026-04-03T10:22:00Z",
 	}
 }
 
 func TestAllowNormalTransaction(t *testing.T) {
-	tx := &pb.TransactionEvent{
-		Amount:             5000,
-		Country:            "AR",
-		DestinationAccount: "acc_456",
-	}
+	tx := requestWithRulesInputs(5000, "AR", "acc_456")
 	r := Evaluate(tx, baseProfile())
 
 	if r.Decision != "allowed" {
@@ -41,11 +37,7 @@ func TestAllowNormalTransaction(t *testing.T) {
 }
 
 func TestBlockHighRisk(t *testing.T) {
-	tx := &pb.TransactionEvent{
-		Amount:             15000, // > 4500 + 2*1200 = 6900
-		Country:            "BR",  // not in [AR, UY]
-		DestinationAccount: "acc_999", // not in known
-	}
+	tx := requestWithRulesInputs(15000, "BR", "acc_999") // > 4500 + 2*1200 = 6900
 	r := Evaluate(tx, baseProfile())
 
 	if !r.FlagAmount {
@@ -67,11 +59,7 @@ func TestBlockWithVelocity(t *testing.T) {
 	profile := baseProfile()
 	profile.TxLast10Min = 3
 
-	tx := &pb.TransactionEvent{
-		Amount:             15000,
-		Country:            "BR",
-		DestinationAccount: "acc_999",
-	}
+	tx := requestWithRulesInputs(15000, "BR", "acc_999")
 	r := Evaluate(tx, profile)
 
 	// 30 + 25 + 35 + 10 = 100
@@ -84,11 +72,7 @@ func TestBlockWithVelocity(t *testing.T) {
 }
 
 func TestChallengeMiddleScore(t *testing.T) {
-	tx := &pb.TransactionEvent{
-		Amount:             15000, // flag: 30
-		Country:            "AR",
-		DestinationAccount: "acc_999", // flag: 10
-	}
+	tx := requestWithRulesInputs(15000, "AR", "acc_999")
 	r := Evaluate(tx, baseProfile())
 
 	// 30 + 10 = 40 -> challenged
@@ -102,15 +86,25 @@ func TestChallengeMiddleScore(t *testing.T) {
 
 func TestNewUserNoFlags(t *testing.T) {
 	profile := dynamo.NewDefaultProfile("u_new")
-	tx := &pb.TransactionEvent{
-		Amount:             99999,
-		Country:            "JP",
-		DestinationAccount: "acc_unknown",
-	}
+	tx := requestWithRulesInputs(99999, "JP", "acc_unknown")
 	r := Evaluate(tx, profile)
 
 	// New user: stddev=0 so no amount flag, empty lists so no country/dest flags
 	if r.Decision != "allowed" {
 		t.Errorf("new user should be allowed, got %s (score=%d)", r.Decision, r.Score)
+	}
+}
+
+func requestWithRulesInputs(amount float64, country, destination string) *pb.ProcessTransactionRequest {
+	return &pb.ProcessTransactionRequest{
+		Transaction: &pb.TransactionContext{
+			TransactionId:      "tx_rules",
+			UserId:             "u_123",
+			DestinationAccount: destination,
+			Country:            country,
+		},
+		Features: map[string]float64{
+			"amount": amount,
+		},
 	}
 }
