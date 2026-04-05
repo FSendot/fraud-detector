@@ -3,8 +3,8 @@ package scoring
 import (
 	"testing"
 
-	"github.com/fraud-detector/processor/internal/dynamo"
-	pb "github.com/fraud-detector/processor/proto"
+	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 func baseProfile() *dynamo.UserProfile {

@@ -3,7 +3,7 @@ package handler
 import (
 	"testing"
 
-	pb "github.com/fraud-detector/processor/proto"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

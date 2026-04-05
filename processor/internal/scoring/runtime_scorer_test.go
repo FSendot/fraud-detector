@@ -3,7 +3,7 @@ package scoring
 import (
 	"testing"
 
-	pb "github.com/fraud-detector/processor/proto"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 func TestMapActionToDecision(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/fraud-detector/processor
+module github.com/FSendot/fraud-detector/processor
 
 go 1.26
 

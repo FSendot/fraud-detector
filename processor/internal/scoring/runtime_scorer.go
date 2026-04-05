@@ -8,7 +8,7 @@ import (
 
 	"frauddetector/serving/go/pkg/fraudruntime"
 
-	pb "github.com/fraud-detector/processor/proto"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 const runtimeSpecEnvVar = "FRAUD_RUNTIME_SPEC_PATH"

@@ -8,10 +8,10 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/fraud-detector/processor/internal/dynamo"
-	"github.com/fraud-detector/processor/internal/handler"
-	"github.com/fraud-detector/processor/internal/scoring"
-	pb "github.com/fraud-detector/processor/proto"
+	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
+	"github.com/FSendot/fraud-detector/processor/internal/handler"
+	"github.com/FSendot/fraud-detector/processor/internal/scoring"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 	"google.golang.org/grpc"
 )
 

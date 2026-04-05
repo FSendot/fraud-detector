@@ -9,9 +9,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/fraud-detector/processor/internal/dynamo"
-	"github.com/fraud-detector/processor/internal/scoring"
-	pb "github.com/fraud-detector/processor/proto"
+	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
+	"github.com/FSendot/fraud-detector/processor/internal/scoring"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 const processorVersion = "1.0.0"

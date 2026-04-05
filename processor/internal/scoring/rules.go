@@ -1,8 +1,8 @@
 package scoring
 
 import (
-	"github.com/fraud-detector/processor/internal/dynamo"
-	pb "github.com/fraud-detector/processor/proto"
+	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 // Weights for each fraud flag.

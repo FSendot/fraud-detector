@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "github.com/fraud-detector/processor/proto"
+	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
 func main() {
