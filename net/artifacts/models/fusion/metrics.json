@@ -1,0 +1,39 @@
+{
+  "branch_name": "fusion",
+  "config": {
+    "bayesian_alpha_prior": 1.0,
+    "bayesian_beta_prior": 1.0,
+    "logistic_c": 1.0,
+    "logistic_max_iter": 500,
+    "mode": "logistic_meta",
+    "random_state": 7,
+    "threshold": 0.5,
+    "weighted_average_weights": null
+  },
+  "fusion_details": {
+    "coefficients": {
+      "gru_branch_score": -0.5823102609768853,
+      "tabular_nystrom_score": 12.352631062510577,
+      "tree_branch_score": 0.4492591910950933,
+      "vae_nystrom_score": -8.22836271126785
+    },
+    "intercept": -1.0134141456820454,
+    "mode": "logistic_meta"
+  },
+  "row_counts": {
+    "test": 954393,
+    "valid": 954393
+  },
+  "test": {
+    "accuracy": 0.846974988290987,
+    "average_precision": 0.04472133450505436,
+    "log_loss": 0.5141082058009501,
+    "roc_auc": 0.8014651593239706
+  },
+  "valid": {
+    "accuracy": 0.8260171648367077,
+    "average_precision": 0.00354053633889241,
+    "log_loss": 0.5493060347824215,
+    "roc_auc": 0.7760778802213337
+  }
+}

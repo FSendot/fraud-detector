@@ -44,6 +44,8 @@ that future serving code will consume.
    prepared sequence dataset and exports branch predictions for later fusion.
    `scripts/build_fusion_dataset.py` joins branch prediction files into clean
    validation/test fusion datasets with strict missing-join diagnostics.
+   `scripts/train_fusion.py` fits the ensemble fusion stage and exports fused
+   validation/test prediction files plus machine-readable fusion metrics.
    `scripts/export_feature_contract.py` exports the canonical versioned model
    feature contract used by training and future serving integrations.
    `scripts/validate_feature_contract.py` validates a parquet or CSV dataset
@@ -101,6 +103,8 @@ that future serving code will consume.
 - `scripts/build_fusion_dataset.py` reads branch prediction parquets, joins
   them by `transaction_id`, and writes fusion-ready validation/test tables plus
   `reports/fusion_dataset_report.json`.
+- `scripts/train_fusion.py` reads the fusion-ready datasets and supports a
+  simple fusion baseline plus a paper-inspired reliability weighting scaffold.
 - `scripts/export_feature_contract.py` reads the current train/valid/test
   model-input tables plus feature metadata and writes a canonical feature
   contract to `artifacts/contracts/`.
