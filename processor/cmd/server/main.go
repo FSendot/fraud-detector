@@ -6,12 +6,11 @@ import (
 	"net"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
 	"github.com/FSendot/fraud-detector/processor/internal/handler"
 	"github.com/FSendot/fraud-detector/processor/internal/scoring"
 	pb "github.com/FSendot/fraud-detector/processor/proto"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"google.golang.org/grpc"
 )
 
@@ -21,8 +20,7 @@ func main() {
 		port = "50051"
 	}
 
-	// AWS SDK — credentials from env vars or IAM role
-	cfg, err := config.LoadDefaultConfig(context.Background())
+	cfg, err := dynamo.LoadAWSConfig(context.Background())
 	if err != nil {
 		log.Fatalf("failed to load AWS config: %v", err)
 	}

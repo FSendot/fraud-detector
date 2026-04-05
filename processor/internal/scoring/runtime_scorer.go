@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"frauddetector/serving/go/pkg/fraudruntime"
+	"github.com/FSendot/fraud-detector/net/serving/go/pkg/fraudruntime"
 
 	pb "github.com/FSendot/fraud-detector/processor/proto"
 )

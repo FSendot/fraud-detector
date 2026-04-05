@@ -12,8 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-const tableName = "user_profiles"
-
 type Client struct {
 	db *dynamodb.Client
 }
@@ -26,7 +24,7 @@ func NewClient(db *dynamodb.Client) *Client {
 // Returns a default empty profile if the user doesn't exist yet.
 func (c *Client) GetProfile(ctx context.Context, userID string) (*UserProfile, error) {
 	out, err := c.db.GetItem(ctx, &dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(TableName),
 		Key: map[string]types.AttributeValue{
 			"user_id": &types.AttributeValueMemberS{Value: userID},
 		},
@@ -85,7 +83,7 @@ func (c *Client) UpdateProfile(ctx context.Context, profile *UserProfile, amount
 		TypicalChannels:   channels,
 		KnownDestinations: destinations,
 		LastCountry:       country,
-		LastTimestamp:      timestamp,
+		LastTimestamp:     timestamp,
 	}
 
 	item, err := attributevalue.MarshalMap(updated)
@@ -94,7 +92,7 @@ func (c *Client) UpdateProfile(ctx context.Context, profile *UserProfile, amount
 	}
 
 	_, err = c.db.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(TableName),
 		Item:      item,
 	})
 	if err != nil {
