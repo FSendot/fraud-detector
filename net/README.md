@@ -40,6 +40,10 @@ that future serving code will consume.
    `scripts/train_tree_branch.py` trains a contract-validated ExtraTrees-style
    tabular branch and exports predictions plus feature importances for later
    fusion experiments.
+   `scripts/train_gru_branch.py` trains a configurable GRU branch on the
+   prepared sequence dataset and exports branch predictions for later fusion.
+   `scripts/build_fusion_dataset.py` joins branch prediction files into clean
+   validation/test fusion datasets with strict missing-join diagnostics.
    `scripts/export_feature_contract.py` exports the canonical versioned model
    feature contract used by training and future serving integrations.
    `scripts/validate_feature_contract.py` validates a parquet or CSV dataset
@@ -91,6 +95,12 @@ that future serving code will consume.
 - `scripts/train_tree_branch.py` reads the canonical feature contract plus the
   prepared tabular train/valid/test splits, then writes the tree model,
   config, metrics, feature importances, and valid/test prediction parquets.
+- `scripts/train_gru_branch.py` reads `data/processed/sequences/` plus the
+  canonical split IDs, then writes GRU weights, config, metrics, and
+  valid/test prediction parquets.
+- `scripts/build_fusion_dataset.py` reads branch prediction parquets, joins
+  them by `transaction_id`, and writes fusion-ready validation/test tables plus
+  `reports/fusion_dataset_report.json`.
 - `scripts/export_feature_contract.py` reads the current train/valid/test
   model-input tables plus feature metadata and writes a canonical feature
   contract to `artifacts/contracts/`.

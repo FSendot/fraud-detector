@@ -1,0 +1,95 @@
+{
+  "branch_count": 4,
+  "branch_names": [
+    "vae_nystrom",
+    "tabular_nystrom",
+    "tree_branch",
+    "gru_branch"
+  ],
+  "test": {
+    "all_branch_outputs_present": true,
+    "base_branch": "vae_nystrom",
+    "base_rows": 954393,
+    "branch_rows": {
+      "gru_branch": 954393,
+      "tabular_nystrom": 954393,
+      "tree_branch": 954393,
+      "vae_nystrom": 954393
+    },
+    "missing_transaction_ids_by_branch": {
+      "gru_branch": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      },
+      "tabular_nystrom": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      },
+      "tree_branch": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      }
+    },
+    "missing_values_by_column": {
+      "gru_branch_predicted_label": 0,
+      "gru_branch_score": 0,
+      "tabular_nystrom_predicted_label": 0,
+      "tabular_nystrom_score": 0,
+      "tree_branch_predicted_label": 0,
+      "tree_branch_score": 0,
+      "vae_nystrom_predicted_label": 0,
+      "vae_nystrom_score": 0
+    },
+    "rows_after_join": 954393,
+    "split": "test"
+  },
+  "valid": {
+    "all_branch_outputs_present": true,
+    "base_branch": "vae_nystrom",
+    "base_rows": 954393,
+    "branch_rows": {
+      "gru_branch": 954393,
+      "tabular_nystrom": 954393,
+      "tree_branch": 954393,
+      "vae_nystrom": 954393
+    },
+    "missing_transaction_ids_by_branch": {
+      "gru_branch": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      },
+      "tabular_nystrom": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      },
+      "tree_branch": {
+        "extra_in_branch_count": 0,
+        "missing_from_branch_count": 0,
+        "sample_extra_transaction_ids": [],
+        "sample_missing_transaction_ids": []
+      }
+    },
+    "missing_values_by_column": {
+      "gru_branch_predicted_label": 0,
+      "gru_branch_score": 0,
+      "tabular_nystrom_predicted_label": 0,
+      "tabular_nystrom_score": 0,
+      "tree_branch_predicted_label": 0,
+      "tree_branch_score": 0,
+      "vae_nystrom_predicted_label": 0,
+      "vae_nystrom_score": 0
+    },
+    "rows_after_join": 954393,
+    "split": "valid"
+  }
+}

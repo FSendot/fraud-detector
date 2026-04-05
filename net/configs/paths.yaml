@@ -20,6 +20,9 @@ paths:
   split_train_ids: data/splits/train_ids.parquet
   split_valid_ids: data/splits/valid_ids.parquet
   split_test_ids: data/splits/test_ids.parquet
+  fusion_dir: data/fusion
+  fusion_valid: data/fusion/fusion_valid.parquet
+  fusion_test: data/fusion/fusion_test.parquet
   model_input_dir: data/model_input
   model_input_train_tabular: data/model_input/train_tabular.parquet
   model_input_valid_tabular: data/model_input/valid_tabular.parquet
@@ -52,6 +55,10 @@ paths:
   artifact_tree_branch_config: artifacts/models/tree_branch/config.json
   artifact_tree_branch_metrics: artifacts/models/tree_branch/metrics.json
   artifact_tree_branch_feature_importances: artifacts/models/tree_branch/feature_importances.json
+  artifact_gru_branch_dir: artifacts/models/gru_branch
+  artifact_gru_branch_weights: artifacts/models/gru_branch/weights.pt
+  artifact_gru_branch_config: artifacts/models/gru_branch/config.json
+  artifact_gru_branch_metrics: artifacts/models/gru_branch/metrics.json
   predictions_dir: predictions
   prediction_vae_latent_train: predictions/vae_latent_train.parquet
   prediction_vae_latent_valid: predictions/vae_latent_valid.parquet
@@ -62,6 +69,8 @@ paths:
   prediction_nystrom_tabular_test: predictions/nystrom_tabular_test_predictions.parquet
   prediction_tree_branch_valid: predictions/tree_branch_valid.parquet
   prediction_tree_branch_test: predictions/tree_branch_test.parquet
+  prediction_gru_branch_valid: predictions/gru_branch_valid.parquet
+  prediction_gru_branch_test: predictions/gru_branch_test.parquet
   reports_dir: reports
   split_report: reports/split_report.json
   training_prep_report: reports/training_prep_report.json
@@ -70,6 +79,7 @@ paths:
   reports_first_branch_usefulness_md: reports/first_branch/usefulness_report.md
   reports_first_branch_false_positives: reports/first_branch/top_false_positives.parquet
   reports_first_branch_false_negatives: reports/first_branch/top_false_negatives.parquet
+  fusion_dataset_report: reports/fusion_dataset_report.json
   training: training
   serving: serving
   serving_contracts: serving/contracts

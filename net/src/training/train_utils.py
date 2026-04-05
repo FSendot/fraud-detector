@@ -232,6 +232,34 @@ def default_tree_branch_prediction_paths() -> tuple[Path, Path, Path]:
     )
 
 
+def default_gru_branch_paths() -> tuple[Path, Path, Path, Path, Path, Path, Path, Path, Path, Path]:
+    """Return configured default paths for GRU branch inputs and artifacts."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["processed_sequences_x_seq"],
+        paths["processed_sequences_meta"],
+        paths["processed_sequences_y"],
+        paths["artifact_sequence_schema"],
+        paths["split_train_ids"],
+        paths["split_valid_ids"],
+        paths["split_test_ids"],
+        paths["artifact_gru_branch_weights"],
+        paths["artifact_gru_branch_config"],
+        paths["artifact_gru_branch_metrics"],
+    )
+
+
+def default_gru_branch_prediction_paths() -> tuple[Path, Path]:
+    """Return configured default paths for GRU branch prediction exports."""
+
+    paths = load_paths_config(DEFAULT_PATHS_FILE)
+    return (
+        paths["prediction_gru_branch_valid"],
+        paths["prediction_gru_branch_test"],
+    )
+
+
 def ensure_parent(path: Path) -> Path:
     """Create a file's parent directory if needed and return the path."""
 

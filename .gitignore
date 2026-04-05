@@ -12,6 +12,7 @@ net/data/*
 !net/data/interim/
 !net/data/processed/
 !net/data/splits/
+!net/data/fusion/
 net/data/raw/*
 !net/data/raw/.gitkeep
 net/data/interim/*
@@ -20,6 +21,9 @@ net/data/processed/*
 !net/data/processed/.gitkeep
 net/data/splits/*
 !net/data/splits/.gitkeep
+net/data/fusion/*
+!net/data/fusion/fusion_valid.parquet
+!net/data/fusion/fusion_test.parquet
 
 net/artifacts/*
 !net/artifacts/.gitkeep
@@ -34,6 +38,7 @@ net/artifacts/models/*
 !net/artifacts/models/nystrom_gp/
 !net/artifacts/models/nystrom_tabular/
 !net/artifacts/models/tree_branch/
+!net/artifacts/models/gru_branch/
 net/artifacts/models/vae/*
 !net/artifacts/models/vae/.gitkeep
 net/artifacts/models/nystrom_gp/*
@@ -44,6 +49,10 @@ net/artifacts/models/tree_branch/*
 !net/artifacts/models/tree_branch/config.json
 !net/artifacts/models/tree_branch/metrics.json
 !net/artifacts/models/tree_branch/feature_importances.json
+net/artifacts/models/gru_branch/*
+!net/artifacts/models/gru_branch/weights.pt
+!net/artifacts/models/gru_branch/config.json
+!net/artifacts/models/gru_branch/metrics.json
 net/artifacts/reports/*
 !net/artifacts/reports/.gitkeep
 net/artifacts/feature_dict/*
@@ -55,10 +64,13 @@ net/artifacts/preprocessing/*
 
 net/predictions/*
 !net/predictions/.gitkeep
+!net/predictions/gru_branch_valid.parquet
+!net/predictions/gru_branch_test.parquet
 
 net/reports/*
 !net/reports/.gitkeep
 !net/reports/first_branch/
+!net/reports/fusion_dataset_report.json
 net/reports/first_branch/*
 !net/reports/first_branch/.gitkeep
 

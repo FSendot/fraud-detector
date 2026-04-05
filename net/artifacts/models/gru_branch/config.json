@@ -1,0 +1,18 @@
+{
+  "batch_size": 256,
+  "classifier_hidden_dim": 32,
+  "device": "cpu",
+  "downsample_ratio": 3.0,
+  "dropout": 0.1,
+  "epochs": 10,
+  "gru_layers": 1,
+  "hidden_dim": 64,
+  "learning_rate": 0.001,
+  "max_train_samples": null,
+  "max_valid_monitor_samples": 200000,
+  "patience": 3,
+  "pos_weight": null,
+  "seed": 7,
+  "sequence_input_dim": 16,
+  "weight_decay": 0.0001
+}

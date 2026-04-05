@@ -1,0 +1,94 @@
+{
+  "branch_name": "gru_branch",
+  "config": {
+    "batch_size": 256,
+    "classifier_hidden_dim": 32,
+    "device": "cpu",
+    "downsample_ratio": 3.0,
+    "dropout": 0.1,
+    "epochs": 10,
+    "gru_layers": 1,
+    "hidden_dim": 64,
+    "learning_rate": 0.001,
+    "max_train_samples": null,
+    "max_valid_monitor_samples": 200000,
+    "patience": 3,
+    "pos_weight": null,
+    "seed": 7,
+    "sequence_input_dim": 16,
+    "weight_decay": 0.0001
+  },
+  "sequence_schema": {
+    "dataset_name": "gru_sequences",
+    "entity_key": "name_orig",
+    "leakage_prevention": "Sequences are grouped by the entity key and sorted by stable chronological columns. Each sample's X_seq contains up to the previous N transactions for that entity, never the current row or any future row. Short histories are left-padded with zeros.",
+    "padding_strategy": "left_pad_with_zeros",
+    "sequence_length": 10,
+    "usable_sequence_feature_columns": [
+      "source_row_number",
+      "transaction_order",
+      "step",
+      "amount",
+      "previous_transaction_amount",
+      "prior_5_transaction_count",
+      "prior_10_transaction_count",
+      "prior_5_amount_sum",
+      "prior_5_amount_mean",
+      "prior_5_amount_std",
+      "prior_10_amount_sum",
+      "prior_10_amount_mean",
+      "prior_10_amount_std",
+      "seconds_since_previous_transaction",
+      "prior_5_unique_name_dest_count",
+      "prior_10_unique_name_dest_count"
+    ]
+  },
+  "split_row_counts": {
+    "test": 954393,
+    "train_after_downsampling": 14572,
+    "valid": 954393
+  },
+  "test": {
+    "accuracy": 0.9945682753331175,
+    "average_precision": 0.004211912433462595,
+    "log_loss": 0.6776613538152492,
+    "loss": 0.683616047715817,
+    "roc_auc": 0.5005732160630731
+  },
+  "training": {
+    "best_epoch": 1,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 1.0399817800312425,
+        "valid_monitor_average_precision": 0.0006157666294536699,
+        "valid_monitor_loss": 0.6784018301582336
+      },
+      {
+        "epoch": 2,
+        "train_loss": 1.0399667836793203,
+        "valid_monitor_average_precision": 0.000615,
+        "valid_monitor_loss": 0.6800520537567138
+      },
+      {
+        "epoch": 3,
+        "train_loss": 1.0398497628602816,
+        "valid_monitor_average_precision": 0.0006151261008506744,
+        "valid_monitor_loss": 0.7029606200790405
+      },
+      {
+        "epoch": 4,
+        "train_loss": 1.0398786319274023,
+        "valid_monitor_average_precision": 0.000615064581781087,
+        "valid_monitor_loss": 0.6785233438873292
+      }
+    ]
+  },
+  "valid": {
+    "accuracy": 0.9983214461966926,
+    "average_precision": 0.0005885100251977101,
+    "log_loss": 0.6775380622283512,
+    "loss": 0.6783733297299391,
+    "roc_auc": 0.4991617247146123
+  }
+}
