@@ -44,7 +44,7 @@ From the `net` directory:
 ```bash
 mkdir -p .cache/go-build
 cd serving/go
-GOCACHE=/Users/martin.zahnd/Documents/cloud/fraud-detector/net/.cache/go-build go build ./cmd/shadow-score
+GOCACHE=/path/to/fraud-detector/net/.cache/go-build go build ./cmd/shadow-score
 ```
 
 ## Import As A Library In Another Go Service
@@ -61,7 +61,7 @@ service's `go.mod`:
 ```go
 require frauddetector/serving/go v0.0.0
 
-replace frauddetector/serving/go => /Users/martin.zahnd/Documents/cloud/fraud-detector/net/serving/go
+replace frauddetector/serving/go => /path/to/fraud-detector/net/serving/go
 ```
 
 Then load the exported runtime spec in your server:
@@ -78,7 +78,7 @@ import (
 
 func main() {
 	scorer, err := fraudruntime.NewScorerFromSpecPath(
-		"/Users/martin.zahnd/Documents/cloud/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json",
+		"/path/to/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json",
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -115,18 +115,18 @@ Your calling service is responsible for:
 ## Run One-Shot Scoring
 
 ```bash
-cd /Users/martin.zahnd/Documents/cloud/fraud-detector/net/serving/go
-GOCACHE=/Users/martin.zahnd/Documents/cloud/fraud-detector/net/.cache/go-build ./shadow-score \
-  --spec /Users/martin.zahnd/Documents/cloud/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json \
+cd /path/to/fraud-detector/net/serving/go
+GOCACHE=/path/to/fraud-detector/net/.cache/go-build ./shadow-score \
+  --spec /path/to/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json \
   --request-file /tmp/shadow_request.json
 ```
 
 ## Run As A Local Go Shadow Service
 
 ```bash
-cd /Users/martin.zahnd/Documents/cloud/fraud-detector/net/serving/go
-GOCACHE=/Users/martin.zahnd/Documents/cloud/fraud-detector/net/.cache/go-build ./shadow-score \
-  --spec /Users/martin.zahnd/Documents/cloud/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json \
+cd /path/to/fraud-detector/net/serving/go
+GOCACHE=/path/to/fraud-detector/net/.cache/go-build ./shadow-score \
+  --spec /path/to/fraud-detector/net/outputs/go_runtime/model_v1/runtime_spec.json \
   --host 127.0.0.1 \
   --port 8081
 ```

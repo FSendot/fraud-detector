@@ -6,7 +6,7 @@ datasets:
     relative_path: data/raw/PS_20174392719_1491204439457_log.csv
     sha256: 16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b
     size_bytes: 493534783
-    source_path: /Users/martin.zahnd/Documents/cloud/fraud-detector/net/data/raw/PS_20174392719_1491204439457_log.csv
+    source_path: /path/to/fraud-detector/net/data/raw/PS_20174392719_1491204439457_log.csv
   data/raw/paysim dataset.csv:
     acquisition: registered
     filename: paysim dataset.csv
@@ -14,6 +14,6 @@ datasets:
     relative_path: data/raw/paysim dataset.csv
     sha256: 16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b
     size_bytes: 493534783
-    source_path: /Users/martin.zahnd/Documents/cloud/fraud-detector/net/data/raw/paysim
+    source_path: /path/to/fraud-detector/net/data/raw/paysim
       dataset.csv
 version: 1

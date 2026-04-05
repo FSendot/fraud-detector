@@ -428,7 +428,7 @@ Minimal local integration example:
 1. Export the runtime spec:
 
 ```bash
-cd /Users/martin.zahnd/Documents/cloud/fraud-detector/net
+cd /path/to/fraud-detector/net
 pipenv run python scripts/export_go_runtime.py
 ```
 
@@ -547,7 +547,7 @@ This is the simplest first integration.
 1. Start the Python shadow scorer:
 
 ```bash
-cd /Users/martin.zahnd/Documents/cloud/fraud-detector/net
+cd /path/to/fraud-detector/net
 pipenv run python scripts/serve_shadow_scoring.py --host 127.0.0.1 --port 8080
 ```
 

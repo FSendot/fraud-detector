@@ -14,7 +14,7 @@ be integrated into one.
 ## Threshold Policy
 
 The default policy file is
-[production_thresholds.yaml](/Users/martin.zahnd/Documents/cloud/fraud-detector/net/configs/production_thresholds.yaml).
+[production_thresholds.yaml](fraud-detector/net/configs/production_thresholds.yaml).
 
 Default actions:
 
@@ -32,7 +32,7 @@ Recommended rollout path:
 ## Monitoring
 
 The default monitoring file is
-[monitoring.yaml](/Users/martin.zahnd/Documents/cloud/fraud-detector/net/configs/monitoring.yaml).
+[monitoring.yaml](fraud-detector/net/configs/monitoring.yaml).
 
 The readiness layer expects the future platform to track:
 
@@ -49,7 +49,7 @@ Severity guidance:
 ## Retraining
 
 The default retraining file is
-[retraining.yaml](/Users/martin.zahnd/Documents/cloud/fraud-detector/net/configs/retraining.yaml).
+[retraining.yaml](fraud-detector/net/configs/retraining.yaml).
 
 Retraining should be considered when one or more of these happen:
 
@@ -68,7 +68,7 @@ Promotion gate:
 ## Version Selection And Rollback
 
 Version selection logic lives in
-[versioning.py](/Users/martin.zahnd/Documents/cloud/fraud-detector/net/src/ops/versioning.py).
+[versioning.py](fraud-detector/net/src/ops/versioning.py).
 
 Expected behavior:
 

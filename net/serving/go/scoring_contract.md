@@ -89,7 +89,7 @@ Local development can use a `replace` directive:
 ```go
 require frauddetector/serving/go v0.0.0
 
-replace frauddetector/serving/go => /Users/martin.zahnd/Documents/cloud/fraud-detector/net/serving/go
+replace frauddetector/serving/go => /path/to/fraud-detector/net/serving/go
 ```
 
 Import path:

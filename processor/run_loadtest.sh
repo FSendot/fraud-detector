@@ -11,6 +11,11 @@ export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-local}"
 export DYNAMODB_ENDPOINT="${DYNAMODB_ENDPOINT:-http://localhost:8000}"
 export FRAUD_RUNTIME_SPEC_PATH="${FRAUD_RUNTIME_SPEC_PATH:-${PROJECT_ROOT}/net/outputs/go_runtime/model_v1/runtime_spec.json}"
 export GRPC_PORT="${GRPC_PORT:-50051}"
+export LOADTEST_REQUESTS="${LOADTEST_REQUESTS:-2500}"
+export LOADTEST_CONCURRENCY="${LOADTEST_CONCURRENCY:-40}"
+export LOADTEST_STABLE_USERS="${LOADTEST_STABLE_USERS:-200}"
+export LOADTEST_USER_PREFIX="${LOADTEST_USER_PREFIX:-loadtest}"
+export LOADTEST_OUTPUT_DIR="${LOADTEST_OUTPUT_DIR:-${SCRIPT_DIR}/output/loadtest}"
 
 SERVER_PID=""
 
@@ -85,28 +90,6 @@ wait_for_server() {
   return 1
 }
 
-run_client() {
-  local request_id="$1"
-  local timestamp="$2"
-
-  go run ./cmd/client \
-    -addr "localhost:${GRPC_PORT}" \
-    -tx-id tx_local_001 \
-    -user-id u_local_001 \
-    -person-id p_local_001 \
-    -account-id acc_local_001 \
-    -amount 15000 \
-    -currency ARS \
-    -timestamp "${timestamp}" \
-    -channel web \
-    -dest acc_dest_001 \
-    -country BR \
-    -request-id "${request_id}" \
-    -source-system local-payments \
-    -source-component run-local \
-    -source-region local
-}
-
 trap cleanup EXIT
 
 cd "${SCRIPT_DIR}"
@@ -129,13 +112,18 @@ SERVER_PID=$!
 
 wait_for_server "localhost:${GRPC_PORT}"
 
-echo "Running first local request..."
-run_client "req_local_001" "2026-04-03T10:22:00Z"
-
-echo "Running second local request to exercise profile updates..."
-run_client "req_local_002" "2026-04-03T10:27:00Z"
+echo "Running high-volume load test..."
+go run ./cmd/loadtest \
+  -addr "localhost:${GRPC_PORT}" \
+  -requests "${LOADTEST_REQUESTS}" \
+  -concurrency "${LOADTEST_CONCURRENCY}" \
+  -stable-users "${LOADTEST_STABLE_USERS}" \
+  -user-prefix "${LOADTEST_USER_PREFIX}" \
+  -output-dir "${LOADTEST_OUTPUT_DIR}"
 
 echo
-echo "Local smoke test completed."
+echo "Load test completed."
+pkill -x server
+echo "Server killed successfully"
 echo "DynamoDB Local is still running in Docker."
 echo "Stop it with: cd ${SCRIPT_DIR} && docker compose down"

@@ -87,5 +87,9 @@ func main() {
 	fmt.Printf("  Score:           %d\n", resp.Score)
 	fmt.Printf("  Model Version:   %s\n", resp.ModelVersion)
 	fmt.Printf("  Cal. Score:      %.4f\n", resp.CalibratedScore)
+	fmt.Printf("  Total ms:        %.2f\n", resp.TotalDurationMs)
+	fmt.Printf("  Lookup ms:       %.2f\n", resp.ProfileLookupDurationMs)
+	fmt.Printf("  Scoring ms:      %.2f\n", resp.ScoringDurationMs)
+	fmt.Printf("  Update ms:       %.2f\n", resp.ProfileUpdateDurationMs)
 	fmt.Printf("  Correlation ID:  %s\n", resp.CorrelationId)
 }

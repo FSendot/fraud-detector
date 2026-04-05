@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fraud;
 
-option go_package = "github.com/fraud-detector/processor/proto";
+option go_package = "github.com/FSendot/fraud-detector/processor/proto";
 
 message RequestTrace {
   string request_id       = 1;
@@ -31,14 +31,18 @@ message ProcessTransactionRequest {
 }
 
 message TransactionResponse {
-  string transaction_id   = 1;
-  string decision         = 2; // "allowed", "blocked", "challenged"
-  int32  score            = 3;
-  string correlation_id   = 4;
-  string request_id       = 5;
-  string source_system    = 6;
-  string model_version    = 7;
-  double calibrated_score = 8;
+  string transaction_id              = 1;
+  string decision                    = 2; // "allowed", "blocked", "challenged"
+  int32  score                       = 3;
+  string correlation_id              = 4;
+  string request_id                  = 5;
+  string source_system               = 6;
+  string model_version               = 7;
+  double calibrated_score            = 8;
+  double total_duration_ms           = 9;
+  double profile_lookup_duration_ms  = 10;
+  double scoring_duration_ms         = 11;
+  double profile_update_duration_ms  = 12;
 }
 
 service FraudProcessor {

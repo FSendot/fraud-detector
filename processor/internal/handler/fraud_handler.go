@@ -30,6 +30,7 @@ func NewFraudHandler(dynamoClient *dynamo.Client, scoringEngine *scoring.Engine)
 }
 
 func (h *FraudHandler) ProcessTransaction(ctx context.Context, req *pb.ProcessTransactionRequest) (*pb.TransactionResponse, error) {
+	requestStartedAt := time.Now()
 	correlationID := uuid.New().String()
 	if err := validateRequest(req); err != nil {
 		return nil, err
@@ -46,25 +47,38 @@ func (h *FraudHandler) ProcessTransaction(ctx context.Context, req *pb.ProcessTr
 		len(req.GetFeatures()),
 	)
 
+	profileLookupStartedAt := time.Now()
 	profile, err := h.dynamo.GetProfile(ctx, transaction.GetUserId())
+	profileLookupDuration := time.Since(profileLookupStartedAt)
 	if err != nil {
-		log.Printf("[%s] error getting profile: %v", correlationID, err)
+		log.Printf("[%s] error getting profile after %.2fms: %v", correlationID, durationMillis(profileLookupDuration), err)
 		return nil, err
 	}
 
+	scoringStartedAt := time.Now()
 	result, err := h.scoringEngine.ScoreTransaction(req, correlationID)
+	scoringDuration := time.Since(scoringStartedAt)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("[%s] scored transaction %s with model=%s calibrated_score=%.4f action=%s decision=%s",
-		correlationID, transaction.GetTransactionId(), result.ModelVersion, result.Calibrated, result.RecommendedAct, result.Decision)
+	log.Printf("[%s] scored transaction %s with model=%s calibrated_score=%.4f action=%s decision=%s lookup_ms=%.2f scoring_ms=%.2f",
+		correlationID,
+		transaction.GetTransactionId(),
+		result.ModelVersion,
+		result.Calibrated,
+		result.RecommendedAct,
+		result.Decision,
+		durationMillis(profileLookupDuration),
+		durationMillis(scoringDuration),
+	)
 
 	// 4. TODO: Publish enriched event to RabbitMQ
 	amount := req.GetFeatures()["amount"]
 	_ = buildEnrichedEvent(req, profile, result, correlationID, amount)
 
 	// 5. UPDATE user profile in DynamoDB
+	profileUpdateStartedAt := time.Now()
 	if err := h.dynamo.UpdateProfile(
 		ctx,
 		profile,
@@ -76,17 +90,34 @@ func (h *FraudHandler) ProcessTransaction(ctx context.Context, req *pb.ProcessTr
 	); err != nil {
 		log.Printf("[%s] error updating profile: %v", correlationID, err)
 	}
+	profileUpdateDuration := time.Since(profileUpdateStartedAt)
+	totalDuration := time.Since(requestStartedAt)
+
+	log.Printf("[%s] completed transaction=%s total_ms=%.2f profile_update_ms=%.2f",
+		correlationID,
+		transaction.GetTransactionId(),
+		durationMillis(totalDuration),
+		durationMillis(profileUpdateDuration),
+	)
 
 	return &pb.TransactionResponse{
-		TransactionId:   transaction.GetTransactionId(),
-		Decision:        result.Decision,
-		Score:           result.Score,
-		CorrelationId:   correlationID,
-		RequestId:       trace.GetRequestId(),
-		SourceSystem:    trace.GetSourceSystem(),
-		ModelVersion:    result.ModelVersion,
-		CalibratedScore: result.Calibrated,
+		TransactionId:           transaction.GetTransactionId(),
+		Decision:                result.Decision,
+		Score:                   result.Score,
+		CorrelationId:           correlationID,
+		RequestId:               trace.GetRequestId(),
+		SourceSystem:            trace.GetSourceSystem(),
+		ModelVersion:            result.ModelVersion,
+		CalibratedScore:         result.Calibrated,
+		TotalDurationMs:         durationMillis(totalDuration),
+		ProfileLookupDurationMs: durationMillis(profileLookupDuration),
+		ScoringDurationMs:       durationMillis(scoringDuration),
+		ProfileUpdateDurationMs: durationMillis(profileUpdateDuration),
 	}, nil
+}
+
+func durationMillis(duration time.Duration) float64 {
+	return float64(duration) / float64(time.Millisecond)
 }
 
 type EnrichedEvent struct {
