@@ -1,0 +1,40 @@
+monitoring:
+  reference_bundle_version: model_v1
+  score_drift:
+    enabled: true
+    metric: population_stability_index
+    warning_threshold: 0.1
+    critical_threshold: 0.25
+    bins: 10
+    score_fields:
+      - raw_fused_score
+      - calibrated_score
+  feature_drift:
+    enabled: true
+    metric: population_stability_index
+    warning_threshold: 0.15
+    critical_threshold: 0.3
+    bins: 10
+    tracked_features:
+      - amount
+      - c1
+      - c14
+      - v258
+      - v201
+      - id_02
+  latency:
+    enabled: true
+    target_p50_ms: 25
+    target_p95_ms: 75
+    target_p99_ms: 150
+    critical_p99_ms: 300
+  data_quality:
+    enabled: true
+    max_contract_mismatch_rate: 0.005
+    max_rebuild_rate: 0.05
+    max_missing_feature_rate: 0.001
+    max_null_label_rate_for_shadow: 1.0
+    duplicate_transaction_id_threshold: 0
+  alerting:
+    evaluation_window_minutes: 60
+    consecutive_breach_windows_for_critical: 2
