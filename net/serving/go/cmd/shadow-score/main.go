@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"frauddetector/serving/go/pkg/fraudruntime"
+	"github.com/FSendot/fraud-detector/net/serving/go/pkg/fraudruntime"
 )
 
 func main() {

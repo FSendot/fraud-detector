@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	rt "frauddetector/serving/go/internal/runtime"
+	rt "github.com/FSendot/fraud-detector/net/serving/go/internal/runtime"
 )
 
 type RuntimeSpec = rt.RuntimeSpec
