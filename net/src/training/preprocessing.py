@@ -102,7 +102,8 @@ def _timestamp_feature_frame(frame: pd.DataFrame, column: str) -> dict[str, pd.S
     unix_seconds = pd.Series(pd.NA, index=frame.index, dtype="Float64")
     valid = timestamps.notna()
     if bool(valid.any()):
-        unix_seconds.loc[valid] = (timestamps.loc[valid].view("int64") // 1_000_000_000).astype("float64")
+        valid_timestamps = timestamps.loc[valid]
+        unix_seconds.loc[valid] = (valid_timestamps.astype("int64") // 1_000_000_000).astype("float64")
     return {
         f"{column}__unix_seconds": unix_seconds.astype("Float32"),
         f"{column}__missing": timestamps.isna().astype("Float32"),
