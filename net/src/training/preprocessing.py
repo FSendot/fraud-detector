@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,13 +25,9 @@ EXCLUDED_FEATURE_COLUMNS = {
     "split",
     "source_row_number",
     "transaction_order",
-    "step",
-    "transaction_timestamp",
     "previous_transaction_timestamp",
-    "name_orig",
-    "name_dest",
-    "type",
 }
+STRING_HASH_BUCKETS = 4096
 
 
 @dataclass(frozen=True)
@@ -90,11 +87,60 @@ def choose_feature_columns(frame: pd.DataFrame) -> list[str]:
     return columns
 
 
-def _numeric_feature_frame(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-    features = frame.loc[:, columns].copy()
-    for column in columns:
-        features[column] = pd.to_numeric(features[column], errors="coerce").astype("Float32")
-    return features.fillna(0.0)
+def _stable_hash_bucket(value: Any, *, buckets: int) -> int:
+    if pd.isna(value):
+        return 0
+    encoded = str(value).strip().encode("utf-8")
+    if not encoded:
+        return 0
+    digest = hashlib.blake2b(encoded, digest_size=8).digest()
+    return int.from_bytes(digest, byteorder="little", signed=False) % buckets
+
+
+def _timestamp_feature_frame(frame: pd.DataFrame, column: str) -> dict[str, pd.Series]:
+    timestamps = pd.to_datetime(frame[column], errors="coerce", utc=True)
+    unix_seconds = pd.Series(pd.NA, index=frame.index, dtype="Float64")
+    valid = timestamps.notna()
+    if bool(valid.any()):
+        unix_seconds.loc[valid] = (timestamps.loc[valid].view("int64") // 1_000_000_000).astype("float64")
+    return {
+        f"{column}__unix_seconds": unix_seconds.astype("Float32"),
+        f"{column}__missing": timestamps.isna().astype("Float32"),
+    }
+
+
+def _string_feature_frame(frame: pd.DataFrame, column: str) -> dict[str, pd.Series]:
+    values = frame[column].astype("string").str.strip()
+    filled = values.fillna("")
+    hashed = filled.map(lambda value: _stable_hash_bucket(value, buckets=STRING_HASH_BUCKETS)).astype("Float32")
+    missing = values.isna() | filled.eq("")
+    return {
+        f"{column}__hash_bucket": hashed,
+        f"{column}__missing": missing.astype("Float32"),
+    }
+
+
+def _engineered_feature_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    excluded = TRACE_COLUMNS | EXCLUDED_FEATURE_COLUMNS
+    engineered: dict[str, pd.Series] = {}
+
+    for column in frame.columns:
+        if column in excluded:
+            continue
+        series = frame[column]
+        if pd.api.types.is_numeric_dtype(series):
+            engineered[column] = pd.to_numeric(series, errors="coerce").astype("Float32")
+            continue
+        if pd.api.types.is_datetime64_any_dtype(series):
+            engineered.update(_timestamp_feature_frame(frame, column))
+            continue
+        engineered.update(_string_feature_frame(frame, column))
+
+    if not engineered:
+        msg = "no tabular features remained after engineering"
+        raise ValueError(msg)
+
+    return pd.DataFrame(engineered, index=frame.index).fillna(0.0)
 
 
 def _fit_scaler(train_features: pd.DataFrame) -> StandardScaler:
@@ -110,7 +156,7 @@ def _transform_features(
     scaler: StandardScaler,
     selector_result: FeatureSelectionResult,
 ) -> pd.DataFrame:
-    numeric = _numeric_feature_frame(frame, feature_columns)
+    numeric = _engineered_feature_frame(frame).loc[:, feature_columns]
     scaled_array = scaler.transform(numeric)
     scaled = pd.DataFrame(scaled_array, columns=feature_columns, index=frame.index)
     selected_array = selector_result.selector.transform(scaled)
@@ -192,14 +238,15 @@ def prepare_and_write_tabular_datasets(
     valid_frame = subset_by_split_ids(behavioral, valid_ids)
     test_frame = subset_by_split_ids(behavioral, test_ids)
 
-    feature_columns = choose_feature_columns(train_frame)
+    train_engineered = _engineered_feature_frame(train_frame)
+    feature_columns = list(train_engineered.columns)
     balanced_train = downsample_training_frame(
         train_frame,
         label_column=TARGET_COLUMN,
         downsample_ratio=downsample_ratio,
     )
 
-    train_features = _numeric_feature_frame(balanced_train.frame, feature_columns)
+    train_features = _engineered_feature_frame(balanced_train.frame).loc[:, feature_columns]
     train_labels = balanced_train.frame[TARGET_COLUMN].astype("Int64")
 
     scaler = _fit_scaler(train_features)
@@ -250,6 +297,12 @@ def prepare_and_write_tabular_datasets(
         "feature_selector": selector_result.selector_name,
         "target_column": TARGET_COLUMN,
         "transaction_id_column": "transaction_id",
+        "string_hash_buckets": STRING_HASH_BUCKETS,
+        "feature_engineering_notes": {
+            "numeric_columns": "Passed through as Float32 after safe coercion.",
+            "datetime_columns": "Expanded into unix_seconds and missing-indicator features.",
+            "string_columns": "Expanded into deterministic hash-bucket and missing-indicator features.",
+        },
     }
     write_selected_features(selected_features_path, selected_features_payload)
 
