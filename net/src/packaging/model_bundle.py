@@ -33,6 +33,16 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _portable_path(path: Path) -> str:
+    """Return a repo-relative path when possible, falling back to POSIX form."""
+
+    root = project_root()
+    try:
+        return path.resolve().relative_to(root).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _bundle_specs(paths: dict[str, Path]) -> list[BundleFileSpec]:
     """Return the required bundle payload."""
 
@@ -134,7 +144,6 @@ def _load_runtime_metadata(paths: dict[str, Path]) -> dict[str, Any]:
             }
 
     return {
-        "project_root": str(project_root()),
         "feature_contract_version": "v1",
         "fusion_runtime": {
             "mode": fusion_metrics.get("config", {}).get("mode"),
@@ -170,7 +179,7 @@ def _copy_specs_to_bundle(specs: list[BundleFileSpec], bundle_root: Path) -> lis
                 "category": spec.category,
                 "size_bytes": int(destination.stat().st_size),
                 "sha256": sha256_file(destination),
-                "source_path": str(spec.source),
+                "source_path": _portable_path(spec.source),
             }
         )
     entries.sort(key=lambda item: item["path"])
@@ -232,7 +241,7 @@ def package_model_bundle(
             "bundle_version": bundle_version,
             "format_version": 1,
             "project": "fraud-detector-net",
-            "paths_file": str(paths_file or DEFAULT_PATHS_FILE),
+            "paths_file": _portable_path(paths_file or DEFAULT_PATHS_FILE),
             "runtime_metadata": runtime_metadata,
             "validation": validation,
             "files": manifest_entries,
