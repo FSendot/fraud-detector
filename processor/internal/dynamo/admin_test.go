@@ -10,8 +10,16 @@ import (
 )
 
 func TestEnsureUserProfilesTableUsesExpectedName(t *testing.T) {
-	if TableName != "user_profiles" {
-		t.Fatalf("TableName = %q, want %q", TableName, "user_profiles")
+	t.Setenv(envTableName, "")
+	if TableName() != defaultTableName {
+		t.Fatalf("TableName() = %q, want %q", TableName(), defaultTableName)
+	}
+}
+
+func TestTableNameUsesOverride(t *testing.T) {
+	t.Setenv(envTableName, "fraud-user-profiles-prod")
+	if TableName() != "fraud-user-profiles-prod" {
+		t.Fatalf("TableName() = %q, want %q", TableName(), "fraud-user-profiles-prod")
 	}
 }
 

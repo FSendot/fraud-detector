@@ -1,4 +1,4 @@
-# Processor Local Development
+# Processor
 
 ## Local DynamoDB
 
@@ -130,6 +130,78 @@ Reset the local database completely:
 docker compose down -v
 ```
 
+## Bundle Server With ML Artifacts
+
+Create a deployable bundle from the `processor` directory:
+
+```bash
+cd processor
+./bundle_server.sh
+```
+
+What the bundler does:
+
+- builds the current gRPC server binary for the selected `GOOS` and `GOARCH`
+- finds a `runtime_spec.json` automatically or asks you to choose one if multiple are present
+- copies the selected ML runtime directory into the bundle
+- generates `.env.example`, `run_server.sh`, `README.md`, and `manifest.txt`
+- creates a `.tar.gz` archive next to the bundle directory
+
+Useful overrides:
+
+```bash
+BUNDLE_RUNTIME_SPEC_PATH=../net/outputs/go_runtime/model_v1/runtime_spec.json ./bundle_server.sh
+```
+
+```bash
+BUNDLE_GOOS=linux BUNDLE_GOARCH=amd64 ./bundle_server.sh
+```
+
+Inside the generated bundle:
+
+- copy `.env.example` to `.env`
+- fill in the production values
+- run `./run_server.sh`
+
+## Production Configuration
+
+The processor uses the normal AWS SDK credential chain in production, so prefer IAM roles or workload identity. You only need to set a small set of processor-specific environment variables.
+
+Required:
+
+- `AWS_REGION`: AWS region for DynamoDB, for example `us-east-1`
+- `FRAUD_RUNTIME_SPEC_PATH`: path to the bundled `runtime_spec.json`
+
+Recommended:
+
+- `GRPC_PORT`: server listen port, default `50051`
+- `DYNAMODB_TABLE_NAME`: DynamoDB table name, default `user_profiles`
+
+Optional:
+
+- `DYNAMODB_ENDPOINT`: only set this for local or non-production endpoint overrides
+- `AWS_PROFILE`: useful when running manually from a shell
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`: only if you are not using IAM role-based auth
+
+Example production shell:
+
+```bash
+cd processor
+export AWS_REGION=us-east-1
+export DYNAMODB_TABLE_NAME=user_profiles
+export FRAUD_RUNTIME_SPEC_PATH=/opt/fraud-processor/ml/model_v1/runtime_spec.json
+export GRPC_PORT=50051
+go run ./cmd/server
+```
+
+Example using a generated bundle:
+
+```bash
+cd /opt/fraud-processor
+cp .env.example .env
+./run_server.sh
+```
+
 ## Production Behavior
 
-If `DYNAMODB_ENDPOINT` is not set, the processor uses the normal AWS SDK configuration and talks to the configured AWS DynamoDB service.
+If `DYNAMODB_ENDPOINT` is not set, the processor uses the normal AWS SDK configuration and talks to the configured AWS DynamoDB service. If `DYNAMODB_TABLE_NAME` is not set, it defaults to `user_profiles`.

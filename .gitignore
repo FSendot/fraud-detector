@@ -47,3 +47,4 @@ net/*.sqlite3
 Pipfile.lock
 
 processor/output/
+processor/dist/

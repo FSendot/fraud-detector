@@ -21,11 +21,11 @@ func main() {
 
 	client := dynamodb.NewFromConfig(cfg)
 	if err := internaldynamo.EnsureUserProfilesTable(ctx, client); err != nil {
-		log.Fatalf("failed to ensure %s table: %v", internaldynamo.TableName, err)
+		log.Fatalf("failed to ensure %s table: %v", internaldynamo.TableName(), err)
 	}
 
 	log.Printf("dynamodb table ready: %s endpoint=%s region=%s",
-		internaldynamo.TableName,
+		internaldynamo.TableName(),
 		os.Getenv("DYNAMODB_ENDPOINT"),
 		cfg.Region,
 	)

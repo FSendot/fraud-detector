@@ -23,8 +23,9 @@ func NewClient(db *dynamodb.Client) *Client {
 // GetProfile fetches a user profile by user_id.
 // Returns a default empty profile if the user doesn't exist yet.
 func (c *Client) GetProfile(ctx context.Context, userID string) (*UserProfile, error) {
+	tableName := TableName()
 	out, err := c.db.GetItem(ctx, &dynamodb.GetItemInput{
-		TableName: aws.String(TableName),
+		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
 			"user_id": &types.AttributeValueMemberS{Value: userID},
 		},
@@ -91,8 +92,9 @@ func (c *Client) UpdateProfile(ctx context.Context, profile *UserProfile, amount
 		return fmt.Errorf("dynamo marshal: %w", err)
 	}
 
+	tableName := TableName()
 	_, err = c.db.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(TableName),
+		TableName: aws.String(tableName),
 		Item:      item,
 	})
 	if err != nil {
