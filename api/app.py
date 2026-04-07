@@ -1,17 +1,17 @@
 """
 API REST mínima para el dashboard (demo).
-Ejecutar en EC2: python app.py  (escucha en 0.0.0.0:5000)
+Solo biblioteca estándar de Python 3 — no requiere pip ni requirements.txt.
+
+Ejecutar en EC2: python3 app.py
 """
 from __future__ import annotations
 
+import json
 import os
 from datetime import datetime, timezone
+from urllib.parse import parse_qs
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
+from wsgiref.simple_server import make_server
 
 # Datos de ejemplo; reemplazá por consultas a Redshift/DB cuando tengas el pipeline.
 _MOCK_STATS = {
@@ -54,35 +54,83 @@ _MOCK_TRANSACTIONS = [
     },
 ]
 
-
-@app.get("/health")
-def health():
-    return jsonify({"status": "ok"})
-
-
-@app.get("/api/stats")
-def stats():
-    return jsonify(_MOCK_STATS)
+_CORS_HEADERS = [
+    ("Access-Control-Allow-Origin", "*"),
+    ("Access-Control-Allow-Methods", "GET, OPTIONS"),
+    ("Access-Control-Allow-Headers", "Content-Type, Accept"),
+]
 
 
-@app.get("/api/transactions")
-def transactions():
-    limit = request.args.get("limit", default="20", type=int)
-    limit = max(1, min(limit, 100))
-    return jsonify({"items": _MOCK_TRANSACTIONS[:limit]})
+def _json_response(
+    start_response, status: str, obj: object
+) -> list[bytes]:
+    body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
+    headers = [
+        ("Content-Type", "application/json; charset=utf-8"),
+        ("Content-Length", str(len(body))),
+    ] + _CORS_HEADERS
+    start_response(status, headers)
+    return [body]
 
 
-@app.get("/api/version")
-def version():
-    return jsonify(
-        {
-            "service": "fraud-dashboard-api",
-            "version": "1.0.0",
-            "time": datetime.now(timezone.utc).isoformat(),
-        }
+def application(environ, start_response):
+    method = environ.get("REQUEST_METHOD", "GET")
+    path = environ.get("PATH_INFO") or "/"
+    query = environ.get("QUERY_STRING") or ""
+
+    if method == "OPTIONS":
+        start_response("204 No Content", _CORS_HEADERS)
+        return [b""]
+
+    if method != "GET":
+        return _json_response(
+            start_response,
+            "405 Method Not Allowed",
+            {"error": "method_not_allowed"},
+        )
+
+    # "/" responde OK: muchos health checks (ALB/ELB) usan GET / por defecto.
+    if path in ("/", "/health"):
+        return _json_response(start_response, "200 OK", {"status": "ok"})
+
+    if path == "/api/stats":
+        return _json_response(start_response, "200 OK", _MOCK_STATS)
+
+    if path == "/api/transactions":
+        qs = parse_qs(query)
+        raw_limit = (qs.get("limit") or ["20"])[0]
+        try:
+            limit = int(raw_limit)
+        except ValueError:
+            limit = 20
+        limit = max(1, min(limit, 100))
+        return _json_response(
+            start_response,
+            "200 OK",
+            {"items": _MOCK_TRANSACTIONS[:limit]},
+        )
+
+    if path == "/api/version":
+        return _json_response(
+            start_response,
+            "200 OK",
+            {
+                "service": "fraud-dashboard-api",
+                "version": "1.0.0",
+                "time": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+    return _json_response(
+        start_response,
+        "404 Not Found",
+        {"error": "not_found", "path": path},
     )
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port, debug=os.environ.get("FLASK_DEBUG") == "1")
+    host = os.environ.get("HOST", "0.0.0.0")
+    with make_server(host, port, application) as httpd:
+        print(f"Serving on http://{host}:{port}")
+        httpd.serve_forever()
