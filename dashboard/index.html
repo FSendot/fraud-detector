@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fraud Detector</title>
+    <style>
+      :root {
+        --bg: #f4f6f8;
+        --surface: #ffffff;
+        --text: #111827;
+        --text-soft: #6b7280;
+        --border: #e5e7eb;
+        --accent: #2563eb;
+        --accent-soft: #eff6ff;
+        --danger: #dc2626;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 2px rgba(17, 24, 39, 0.06),
+          0 8px 24px rgba(17, 24, 39, 0.06);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      /* ——— Login ——— */
+      #view-login {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: radial-gradient(
+            ellipse 120% 80% at 50% -20%,
+            #dbeafe 0%,
+            transparent 55%
+          ),
+          var(--bg);
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 380px;
+        background: var(--surface);
+        border-radius: calc(var(--radius) + 4px);
+        padding: 2rem 2rem 1.75rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(229, 231, 235, 0.9);
+      }
+
+      .login-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .login-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .login-card h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+
+      .login-card .tagline {
+        margin: 0.35rem 0 1.5rem;
+        font-size: 0.875rem;
+        color: var(--text-soft);
+      }
+
+      .field {
+        margin-bottom: 1rem;
+      }
+
+      .field label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-soft);
+        margin-bottom: 0.35rem;
+      }
+
+      .field input {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        font: inherit;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #fafbfc;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      }
+
+      .field input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: var(--surface);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+
+      .btn {
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 0.65rem 1rem;
+        width: 100%;
+        background: var(--accent);
+        color: #fff;
+        transition: filter 0.15s, transform 0.1s;
+      }
+
+      .btn:hover {
+        filter: brightness(1.05);
+      }
+
+      .btn:active {
+        transform: scale(0.99);
+      }
+
+      #login-error {
+        margin-top: 0.85rem;
+        font-size: 0.8125rem;
+        color: var(--danger);
+        min-height: 1.25rem;
+      }
+
+      .login-foot {
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.75rem;
+        color: var(--text-soft);
+        text-align: center;
+      }
+
+      /* ——— App ——— */
+      #view-app {
+        display: none;
+        padding: 1.25rem clamp(1rem, 4vw, 2rem) 2rem;
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+
+      #view-app.is-visible {
+        display: block;
+      }
+
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .topbar-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .topbar-title .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+      }
+
+      .topbar-title .dot.offline {
+        background: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+      }
+
+      .topbar h1 {
+        font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.03em;
+      }
+
+      .topbar p {
+        margin: 0.15rem 0 0;
+        font-size: 0.8125rem;
+        color: var(--text-soft);
+      }
+
+      .topbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-ghost {
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        padding: 0.45rem 0.75rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        transition: background 0.15s, border-color 0.15s;
+      }
+
+      .btn-ghost:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+      }
+
+      .btn-ghost.danger {
+        color: var(--danger);
+        border-color: #fecaca;
+        background: #fff;
+      }
+
+      .btn-ghost.danger:hover {
+        background: #fef2f2;
+      }
+
+      #status {
+        font-size: 0.8125rem;
+        color: var(--text-soft);
+      }
+
+      .card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.15rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(229, 231, 235, 0.85);
+        box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+      }
+
+      .card h2 {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-soft);
+        margin: 0 0 1rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .stat {
+        padding: 0.85rem 1rem;
+        border-radius: var(--radius-sm);
+        background: #fafbfc;
+        border: 1px solid var(--border);
+      }
+
+      .stat .value {
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+
+      .stat .label {
+        font-size: 0.75rem;
+        color: var(--text-soft);
+        margin-top: 0.2rem;
+      }
+
+      #error {
+        color: var(--danger);
+        font-size: 0.8125rem;
+        margin-top: 0.5rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin: 0 -0.25rem;
+        padding: 0 0.25rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 0.55rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        font-weight: 600;
+        color: var(--text-soft);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      tbody tr:hover td {
+        background: #fafbfc;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 0.15rem 0.45rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+
+      .pill.allow {
+        background: #ecfdf5;
+        color: #047857;
+      }
+
+      .pill.challenge {
+        background: #fffbeb;
+        color: #b45309;
+      }
+
+      .pill.block {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="view-login" aria-labelledby="login-heading">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-logo" aria-hidden="true">FD</div>
+          <div>
+            <h1 id="login-heading">Fraud Detector</h1>
+          </div>
+        </div>
+        <p class="tagline">Ingresá con tu cuenta de demo.</p>
+        <form id="login-form" autocomplete="on">
+          <div class="field">
+            <label for="username">Usuario</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="password">Contraseña</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <button type="submit" class="btn">Entrar</button>
+          <div id="login-error" role="alert"></div>
+        </form>
+        <p class="login-foot">Demo estática · API en EC2</p>
+      </div>
+    </div>
+
+    <div id="view-app">
+      <header class="topbar">
+        <div>
+          <div class="topbar-title">
+            <span id="status-dot" class="dot" aria-hidden="true"></span>
+            <div>
+              <h1>Fraud Detector</h1>
+              <p>Panel de operaciones</p>
+            </div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span id="status">—</span>
+          <button type="button" class="btn-ghost" id="reload">Actualizar</button>
+          <button type="button" class="btn-ghost danger" id="logout">
+            Salir
+          </button>
+        </div>
+      </header>
+
+      <div class="card">
+        <h2>Resumen</h2>
+        <div id="stats" class="stats-grid"></div>
+        <div id="error" hidden></div>
+      </div>
+
+      <div class="card">
+        <h2>Últimas transacciones</h2>
+        <div class="table-wrap">
+          <table id="tx-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Monto</th>
+                <th>País</th>
+                <th>Score</th>
+                <th>Decisión</th>
+                <th>Procesado</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
