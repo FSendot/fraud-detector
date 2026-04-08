@@ -16,13 +16,13 @@ try:
 except ImportError:
     _HAVE_PSYCOPG2 = False
 
-# ---------- RDS: una variable por campo (desde el entorno; nombres PG* estándar) ----------
-DB_HOST = os.environ.get("PGHOST", "").strip()
-DB_PORT = int(os.environ.get("PGPORT", "5432"))
-DB_NAME = os.environ.get("PGDATABASE", "").strip()
-DB_USER = os.environ.get("PGUSER", "").strip()
-DB_PASSWORD = os.environ.get("PGPASSWORD", "")
-DB_SSLMODE = os.environ.get("PGSSLMODE", "require").strip() or "require"
+# ---------- RDS: editá aquí (sin .env). Si DB_HOST queda vacío, se usa el mock. ----------
+DB_HOST = ""
+DB_PORT = 5432
+DB_NAME = ""
+DB_USER = ""
+DB_PASSWORD = ""
+DB_SSLMODE = "require"
 
 # Datos de ejemplo si RDS no está configurado
 _MOCK_STATS = {
