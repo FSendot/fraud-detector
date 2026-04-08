@@ -133,6 +133,14 @@ DYNAMODB_TABLE_NAME=user_profiles
 # AWS_SECRET_ACCESS_KEY=
 # AWS_SESSION_TOKEN=
 # AWS_PROFILE=
+
+# RDS (PostgreSQL) config — optional, transactions are persisted here
+# Leave RDS_HOST unset to skip RDS entirely.
+RDS_HOST=
+RDS_PORT=5432
+RDS_USER=fraud
+RDS_PASSWORD=
+RDS_DBNAME=fraud
 EOF
 }
 
@@ -182,6 +190,11 @@ Required runtime env:
 - \`AWS_REGION\`
 - \`DYNAMODB_TABLE_NAME\` if different from \`user_profiles\`
 - \`FRAUD_RUNTIME_SPEC_PATH\` if you move the bundled ML directory
+
+Optional RDS env (transactions are persisted when set):
+- \`RDS_HOST\`: PostgreSQL host (e.g. your RDS endpoint)
+- \`RDS_PORT\`: default 5432
+- \`RDS_USER\`, \`RDS_PASSWORD\`, \`RDS_DBNAME\`: connection credentials
 
 AWS auth:
 - prefer IAM role / instance profile / task role

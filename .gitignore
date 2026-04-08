@@ -48,3 +48,7 @@ Pipfile.lock
 
 processor/output/
 processor/dist/
+labsuser.pem
+*.pem
+*.tar.gz
+client-linux

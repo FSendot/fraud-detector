@@ -11,6 +11,7 @@ import (
 
 	"github.com/FSendot/fraud-detector/processor/internal/dynamo"
 	"github.com/FSendot/fraud-detector/processor/internal/scoring"
+	"github.com/FSendot/fraud-detector/processor/internal/store"
 	pb "github.com/FSendot/fraud-detector/processor/proto"
 )
 
@@ -20,12 +21,14 @@ type FraudHandler struct {
 	pb.UnimplementedFraudProcessorServer
 	dynamo        *dynamo.Client
 	scoringEngine *scoring.Engine
+	rds           *store.RDSClient
 }
 
-func NewFraudHandler(dynamoClient *dynamo.Client, scoringEngine *scoring.Engine) *FraudHandler {
+func NewFraudHandler(dynamoClient *dynamo.Client, scoringEngine *scoring.Engine, rdsClient *store.RDSClient) *FraudHandler {
 	return &FraudHandler{
 		dynamo:        dynamoClient,
 		scoringEngine: scoringEngine,
+		rds:           rdsClient,
 	}
 }
 
@@ -73,9 +76,34 @@ func (h *FraudHandler) ProcessTransaction(ctx context.Context, req *pb.ProcessTr
 		durationMillis(scoringDuration),
 	)
 
-	// 4. TODO: Publish enriched event to RabbitMQ
+	// 4. INSERT to RDS
 	amount := req.GetFeatures()["amount"]
-	_ = buildEnrichedEvent(req, profile, result, correlationID, amount)
+	enriched := buildEnrichedEvent(req, profile, result, correlationID, amount)
+	if h.rds != nil {
+		if err := h.rds.InsertTransaction(ctx, &store.TransactionRecord{
+			TransactionID:           enriched.TransactionID,
+			UserID:                  enriched.UserID,
+			PersonID:                enriched.PersonID,
+			AccountID:               enriched.AccountID,
+			Amount:                  enriched.Amount,
+			Currency:                enriched.Currency,
+			Timestamp:               enriched.Timestamp,
+			Channel:                 enriched.Channel,
+			DestinationAccount:      enriched.DestinationAccount,
+			Country:                 enriched.Country,
+			Score:                   enriched.Score,
+			Decision:                enriched.Decision,
+			ProfileAvgAmount:        enriched.ProfileAvgAmount,
+			ProfileStdDev:           enriched.ProfileStdDev,
+			ProfileTxLast10Min:      enriched.ProfileTxLast10Min,
+			ModelVersion:            enriched.ModelVersion,
+			CalibratedScore:         enriched.CalibratedScore,
+			ProcessorVersion:        enriched.ProcessorVersion,
+			ProcessedAt:             time.Now().UTC(),
+		}); err != nil {
+			log.Printf("[%s] error inserting to RDS: %v", correlationID, err)
+		}
+	}
 
 	// 5. UPDATE user profile in DynamoDB
 	profileUpdateStartedAt := time.Now()
