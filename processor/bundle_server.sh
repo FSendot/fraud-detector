@@ -141,6 +141,10 @@ RDS_PORT=5432
 RDS_USER=fraud
 RDS_PASSWORD=
 RDS_DBNAME=fraud
+
+# S3 audit bucket — optional, raw enriched events are written here for audit
+# Leave S3_AUDIT_BUCKET unset to skip S3 audit.
+S3_AUDIT_BUCKET=
 EOF
 }
 

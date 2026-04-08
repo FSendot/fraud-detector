@@ -51,13 +51,26 @@ func main() {
 		log.Printf("RDS_HOST not set, skipping RDS connection")
 	}
 
+	// S3 client — optional, logs warning if not configured
+	var s3Client *store.S3Client
+	if os.Getenv("S3_AUDIT_BUCKET") != "" {
+		s3Client, err = store.NewS3Client(cfg)
+		if err != nil {
+			log.Printf("warning: failed to initialize S3 client: %v", err)
+		} else {
+			log.Printf("S3 audit bucket: %s", os.Getenv("S3_AUDIT_BUCKET"))
+		}
+	} else {
+		log.Printf("S3_AUDIT_BUCKET not set, skipping S3 audit")
+	}
+
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	srv := grpc.NewServer()
-	pb.RegisterFraudProcessorServer(srv, handler.NewFraudHandler(dynamoClient, scoringEngine, rdsClient))
+	pb.RegisterFraudProcessorServer(srv, handler.NewFraudHandler(dynamoClient, scoringEngine, rdsClient, s3Client))
 
 	log.Printf("fraud processor listening on :%s using runtime spec %s", port, specPath)
 	if err := srv.Serve(lis); err != nil {

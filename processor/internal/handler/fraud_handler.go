@@ -22,13 +22,15 @@ type FraudHandler struct {
 	dynamo        *dynamo.Client
 	scoringEngine *scoring.Engine
 	rds           *store.RDSClient
+	s3            *store.S3Client
 }
 
-func NewFraudHandler(dynamoClient *dynamo.Client, scoringEngine *scoring.Engine, rdsClient *store.RDSClient) *FraudHandler {
+func NewFraudHandler(dynamoClient *dynamo.Client, scoringEngine *scoring.Engine, rdsClient *store.RDSClient, s3Client *store.S3Client) *FraudHandler {
 	return &FraudHandler{
 		dynamo:        dynamoClient,
 		scoringEngine: scoringEngine,
 		rds:           rdsClient,
+		s3:            s3Client,
 	}
 }
 
@@ -105,7 +107,14 @@ func (h *FraudHandler) ProcessTransaction(ctx context.Context, req *pb.ProcessTr
 		}
 	}
 
-	// 5. UPDATE user profile in DynamoDB
+	// 5. PUT raw event to S3 for audit
+	if h.s3 != nil {
+		if err := h.s3.PutRawEvent(ctx, transaction.GetTransactionId(), enriched); err != nil {
+			log.Printf("[%s] error writing to S3: %v", correlationID, err)
+		}
+	}
+
+	// 6. UPDATE user profile in DynamoDB
 	profileUpdateStartedAt := time.Now()
 	if err := h.dynamo.UpdateProfile(
 		ctx,
